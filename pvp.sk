@@ -1,0 +1,29 @@
+# PvP Toggle Skript
+# Made by CrystalStudios @ Myxcropix
+# https://www.spigotmc.org/resources/%E2%9A%94%EF%B8%8Fcspvptoggle-the-magical-pvp-toggle-skript-1-16-5.121711/
+
+#set pvp.enabled to false
+
+command /pvp [<text>]:
+    permission: group.staff
+    permission message: "&cYou Dont have permission to change, the pvp version!"
+    trigger:
+        if arg 1 is "on":
+            set {pvp.enabled} to true
+            serverWarning(all players, "PvP is ingeschakeld")
+        else if arg 1 is "off":
+            set {pvp.enabled} to false
+            serverWarning(all players, "PvP is uitgeschakeld")
+        else:
+            send "&cUse: /pvp on | off"
+
+on damage:
+    if attacker is a player:
+        if victim is a player:
+            if {pvp.enabled} is not set:
+                set {pvp.enabled} to false
+            if {pvp.enabled} is false:
+                cancel event
+                serverMessage(attacker, "PvP staat uit!")
+                
+        
