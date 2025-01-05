@@ -1,0 +1,46 @@
+# Open crafting table
+on leftclick with a crafting table:
+    open crafting table to player
+
+# Open Anvil
+on leftclick with a anvil:
+    open anvil to player
+
+# Open loom
+#on leftclick with a loom:
+#    open loom to player
+
+
+# Open cartography table
+#on leftclick with a cartography table:
+#    open cartography table to player
+
+
+# Open stone cutter
+#on leftclick with a stone cutter:
+#    open stone cutter to player
+
+
+# Open smoker
+#on leftclick with a smoker:
+#    open fake smoker to player
+
+
+# Open furnace
+#on leftclick with a furnace:
+#    open fake furnace to player
+
+
+# Open blast furnace
+#on leftclick with a blast furnace:
+#    open fake blast furnace to player
+
+
+# Open ender chest
+#on leftclick with a ender chest:
+#    open ender chest to player
+
+
+# Open grindstone
+#on leftclick with a grindstone:
+#    open grindstone to player

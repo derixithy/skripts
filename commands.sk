@@ -1,0 +1,70 @@
+command /help:
+    permission: group.default
+    trigger:
+        message "&7Open de menu met &f/menu"
+        message "&7Wil je een item voor het menu, type: &f/menu item"
+        message "&7Je kunt een offline gebruiker een bericht sturen"
+        message "&7met: &f/notify gebruiker mijn text bericht"
+        if player has permission "group.trusted":
+            message " "
+            message "&7Je kan een newbie bouw rechten geven met &f/vouch gebruiker"
+            message "&7Bijvoorbeeld: &f/vouch GoudenBlomke"
+        if player has permission "group.staff":
+            message " "
+            message "&7Je kan in een prive chat met &f/staff"
+            message "&7Al je berichten kunnen dan alleen gezien worden door Staff en Admin"
+            message "&7Typ: &f/staff&7 om er weer uit te gaan"
+
+
+command /menu [<text>] [<player>]:
+    permission: group.user
+    trigger:
+        if arg-2 is set:
+            execute console command "/ci give settings %arg-2%"
+        else if arg-1 is "item":
+            execute console command "/ci give settings %player%"
+        else:
+            make player execute command "/cp menu"
+
+command /wclear:
+    permission: group.user
+    trigger:
+        execute console command "/weather clear"
+        serverMessage(all players, "Bui uitgeschakeld door: %player%")
+
+
+command /nightvision [<text>]:
+    description: Get nightvision for 5 minutes
+    usage: How to us the command, e.g. /nightvision [off]
+    permission: group.user
+    executable by: player
+    trigger:
+        if arg-1 is set:
+            execute console command "/effect clear %player% minecraft:night_vision"
+            serverMessage(player, "Nachtvisie uitgeschakeld")
+        else:
+            execute console command "/effect give %player% minecraft:night_vision 300"
+            serverMessage(player, "Nachtvisie aan gezet, gebruik &f/nightvision off&7 om uit te schakelen")
+
+
+# ADMIN
+command /broadcast <text>:
+    permission: server.broadcast
+    description: Broadcasts a message to everybody.
+    trigger:
+        broadcast arg-text
+
+command /sudo [<player>] [<text>]:
+    permission: group.admin
+    trigger:
+        if arg-1 is set:
+            if arg-2 is set:
+                set {command} to arg-2
+                make arg-1 execute command "/%{command}%"
+                serverMessage(player, "%arg-1%&7 word geforceerd om &f/%{command}%&7 te gebruiken")
+            else:
+                send "&cYou have to enter a command!" to player
+        else:
+            send "&cYou must specify a player!" to player
+
+

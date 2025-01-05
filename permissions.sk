@@ -1,0 +1,75 @@
+#
+# Vouch for player, so he/she can build
+#
+command /vouch <player>:
+    description: Give player building rights
+    usage: How to use the command, e.g. /vouch <player>
+    permission: server.vouch 
+    executable by: player and console
+    trigger:
+        if player-arg has permission "group.user":
+            serverMessage(player, "&cPlayer is already vouched for")
+        else:
+            set player-arg's group to "user"
+            set the player-arg's tablist name to "%player-arg's prefix%&f %player-arg%"
+            serverMessage(all players, "Speler &6%arg-1%&7 promoted tot bouwer")
+            serverSuccess(player-arg, "Je kunt nu bouwen")
+
+command /unvouch <player>:
+    description: Remove player building rights
+    usage: How to use the command, e.g. /unvouch <player>
+    permission: server.unvouch
+    executable by: player and console
+    trigger:
+        if player-arg has permission "group.trusted":
+            serverMessage(player, "Je kan een vertrouwde gebruiker niet degraderen")
+        else:
+            set player-arg's group to "default"
+            set the player-arg's tablist name to "%player-arg's prefix%&f %player-arg%"
+            serverMessage(all players, "Speler &6%arg 1%&f kan niet meer bouwen")
+
+
+
+#
+# Promote or Demote player
+command /promote <player>:
+    description: Promote user to new level
+    usage: How to use the command, e.g. /promote <player>
+    permission: server.promote 
+    executable by: player and console
+    trigger:
+        if player-arg has permission "group.staff":
+            serverError(player, "Kan de speler niet hoger bevorderen")
+        else if player-arg has permission "group.trusted":
+            set player-arg's group to "staff"
+            set the player-arg's tablist name to "%player-arg's prefix%&f %player-arg%"
+            serverMessage(all players, "Speler &6%arg-1%&7 verhoogd tot medewerker")
+        else if player-arg has permission "group.user":
+            set player-arg's group to "trusted"
+            set the player-arg's tablist name to "%player-arg's prefix%&f %player-arg%"
+            serverMessage(all players, "Speler &6%arg-1%&7 verhoogd tot vertrouwd")
+        else:
+            set player-arg's group to "user"
+            set the player-arg's tablist name to "%player-arg's prefix%&f %player-arg%"
+            serverMessage(all players, "Speler &6%arg-1%&7 verhoogd tot bouwer")
+
+command /demote <player>:
+    description: Demote player
+    usage: How to use the command, e.g. /demote <player>
+    permission: server.demote
+    executable by: player and console
+    trigger:
+        if player-arg has permission "group.admin":
+            serverError(player, "Kan een admin niet degraderen")
+        else if player-arg has permission "group.staff":
+            set player-arg's group to "trusted"
+            set the player-arg's tablist name to "%player-arg's prefix%&f %player-arg%"
+            serverMessage(all players, "Speler &6%arg-1%&7 verlaagt naar vertrouwd")
+        else if player-arg has permission "group.trusted":
+            set player-arg's group to "user"
+            set the player-arg's tablist name to "%player-arg's prefix%&f %player-arg%"
+            serverMessage(all players, "Speler &6%arg-1%&7 verlaagt naar bouwer")
+        else:
+            serverError(player, "Kan een newbie niet degraderen")
+
+

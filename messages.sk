@@ -1,0 +1,81 @@
+#
+# Messages functions
+#
+function msgMessage(players: players, msg: text):
+    send "&6Berichten &4>>&7 %{_msg}%" to {_players::*}
+
+function msgWarning(players: players, msg: text):
+    send "&6Berichten &4>>&c %{_msg}%" to {_players::*}
+
+function msgError(players: players, msg: text):
+    send "&6Berichten &4>>&4 %{_msg}%" to {_players::*}
+
+function msgSuccess(players: players, msg: text):
+    send "&6Berichten &4>>&2 %{_msg}%" to {_players::*}
+
+
+#
+# Send message
+#
+command /message <offline player> <text>:
+    permission: group.user
+    usage: &7Invalid usage. Please use /notify <player> My message text.
+    trigger:
+        if arg-1 is online:
+            msgMessage(arg-1, "van %player%:&f %arg-2%")
+        else:
+            add "%player's prefix% %player%:&f %arg-2%" to {messages::%arg-1%::*}
+
+
+#
+# Read messages
+#
+command /messages [<text>]:
+    permission: group.user
+    permission message: &7Insufficient permissions.
+    usage: &7Invalid usage. Please use /messages.
+
+    trigger:
+        # Show messages
+        if arg-1 is not set:
+            if {messages::%player%::*} is not set:
+                msgMessage(player, "Je hebt geen berichten")
+            else:
+                msgMessage(player, "Je hebt berichten gekregen toen je offline was")
+                loop {messages::%player%::*}:
+                    msgMessage(player, "%loop-value%")
+                if {messages::autoremove::*} contains player:
+                    delete {messages::%player%::*}
+                    msgWarning(player, "Je berichten zijn verwijderd")
+                else:
+                    msgMessage(player, "Gebruik &f/messages info&7 voor hulp")
+        
+        # Clear messages
+        else if arg-1 is "clear":
+            if {messages::%player%::*} is not set:
+                msgWarning(player, "Je hebt geen berichten")
+            else:
+                delete {messages::%player%::*}
+                msgWarning(player, "Je berichten zijn verwijderd")
+        
+        # Auto clear messages after read
+        else if arg-1 is "autoclear":
+            if {messages::autoremove::*} contains player:
+                remove player from {messages::autoremove::*}
+                msgWarning(player, "Je berichten worden niet meer automatisch verwijderd")
+            else:
+                add player to {messages::autoremove::*}
+                msgWarning(player, "Je berichten worden na het lezen automatisch verwijderd")
+            
+        
+        # Command info
+        else:
+            msgMessage(player, "Gebruik &f/messages&7 om je berichten te lezen")
+            msgMessage(player, "Gebruik &f/messages clear&7 om je berichten te verwijderen")
+            msgMessage(player, "of &f/messages autoclear&7 om je berichten automatisch te verwijderen na het lezen")
+
+
+# On join show messages
+on join:
+    if player has permission "group.user":
+        make player execute command "/messages"

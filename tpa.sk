@@ -1,0 +1,127 @@
+#
+# TPA functions
+#
+function tpaMessage(players: players, msg: text):
+    send "&6TPA &4>>&7 %{_msg}%" to {_players::*}
+
+function tpaWarning(players: players, msg: text):
+    send "&6TPA &4>>&c %{_msg}%" to {_players::*}
+
+function tpaError(players: players, msg: text):
+    send "&6TPA &4>>&4 %{_msg}%" to {_players::*}
+
+function tpaSuccess(players: players, msg: text):
+    send "&6TPA &4>>&2 %{_msg}%" to {_players::*}
+
+
+command /tpa <player>:
+    trigger:
+        set {_target} to arg-1
+        if {_target} is offline:
+            tpaWarning(player, "Deze speler is offline")
+            stop
+        if {_target} is player:
+            tpaWarning(player, "Je kan niet naar jezelf teleporteren")
+            stop
+        if {tpa::%{_target}%} is set:
+            tpaWarning(player, "Deze speler heeft al een teleport verzoek")
+            stop
+        tpaMessage(player, "Teleport verzoek verzonden naar: %{_target}%!")
+        tpaMessage({_target}, "%player% wil naar jou teleporteren, gebruik &f/tpaccept")
+        set {tpa::%{_target}%} to player
+        set {tpa_type::%{_target}%} to "to"
+        wait 60 seconds
+        if {tpa::%{_target}%} is player:
+            delete {tpa::%{_target}%}
+            delete {tpa_type::%{_target}%}
+            tpaWarning(player, "Je teleport verzoek naar %{_target}% is verlopen")
+
+command /tpahere <player>:
+    trigger:
+        set {_target} to arg-1
+        if {_target} is offline:
+            tpaWarning(player, "Deze speler is offline")
+            stop
+        if {_target} is player:
+            tpaWarning(player, "Je kan niet naar jezelf teleporteren")
+            stop
+        if {tpa::%{_target}%} is set:
+            tpaWarning(player, "Deze speler heeft al een teleport verzoek")
+            stop
+        tpaMessage(player, "Teleport verzoek verzonden naar %{_target}%!")
+        tpaMessage({_target}, "%player% wil naar jou teleporteren, gebruik &f/tpaccept")
+        set {tpa::%{_target}%} to player
+        set {tpa_type::%{_target}%} to "here"
+        wait 60 seconds
+        if {tpa::%{_target}%} is player:
+            delete {tpa::%{_target}%}
+            delete {tpa_type::%{_target}%}
+            tpaWarning(player, "Je teleport verzoek naar %{_target}% is verlopen")
+
+command /tpaccept:
+    trigger:
+        if {tpa::%player%} is set:
+            set {_requester} to {tpa::%player%}
+            open chest inventory with 3 rows named "ᴛᴇʟᴇᴘᴏʀᴛ ʀᴇǫᴜᴇѕᴛ" to player
+            wait 1 tick
+            set slot 10 of player's current inventory to red stained glass pane named "&cAnnuleren"
+            set slot 16 of player's current inventory to lime stained glass pane named "&aAccepteren"
+            set slot 13 of player's current inventory to skull of {_requester} named "&e%{_requester}%"
+           
+            set {_location} to world of {_requester}
+            set slot 14 of player's current inventory to grass block named "&3Wereld: &f%{_location}%"
+        else:
+            tpaWarning(player, "Je hebt geen teleport verzoek")
+
+on inventory click:
+    if name of event-inventory is "ᴛᴇʟᴇᴘᴏʀᴛ ʀᴇǫᴜᴇѕᴛ":
+        cancel event
+        if index of clicked slot is 10:
+            close player's inventory
+            set {_requester} to {tpa::%player%}
+            tpaWarning(player, "Teleport verzoek geweigerd")
+            tpaError({_requester}, "%player% heeft je teleport verzoek geweigerd")
+            delete {tpa::%player%}
+            delete {tpa_type::%player%}
+        else if index of clicked slot is 16:
+            close player's inventory
+            set {_requester} to {tpa::%player%}
+            set {_type} to {tpa_type::%player%}
+            tpaSuccess(player, "Teleport verzoek geaccepteerd, je word in 5 seconden over gestraald...")
+            tpaSuccess({_requester}, "Je teleport verzoek werd geaccepteerd, inkomend in 5 seconden...")
+            set {_start_loc} to location of player
+            if {_type} is "here":
+                set {_start_loc} to location of {_requester}
+            loop 5 times:
+                if {_type} is "to":
+                    tpaMessage({_requester}, "Teleporteren in %6 - loop-number% seconden...")
+                else:
+                    tpaMessage(player, "Teleporteren in %6 - loop-number% seconden...")
+                wait 1 second
+                set {_current_loc} to location of player
+                if {_type} is "here":
+                    set {_current_loc} to location of {_requester}
+                if distance between {_start_loc} and {_current_loc} > 3:
+                    if {_type} is "to":
+                        tpaError(player, "Teleport beeindigd. %{_requester}% bewoog te ver")
+                        tpaError({_requester}, "Teleport beeindigd. Je bewoog te ver")
+                    else:
+                        tpaError({_requester}, "Teleport beeindigd. %player% bewoog te ver")
+                        tpaError(player, "Teleport beeindigd. Je bewoog te ver")
+                    delete {tpa::%player%}
+                    delete {tpa_type::%player%}
+                    stop
+            if {_type} is "to":
+                teleport {_requester} to player
+                tpaSuccess(player, "Teleportatie compleet, %{_requester}% is naar je toe gebracht")
+                tpaSuccess({_requester}, "Teleportatie compleet, Je bent naar %player% gebracht")
+            else:
+                teleport player to {_requester}
+                tpaSuccess({_requester}, "Teleportatie compleet, %player% is naar je toe gebracht")
+                tpaSuccess(player, "Teleportatie compleet, Je bent naar %{_requester}% gebracht")
+            delete {tpa::%player%}
+            delete {tpa_type::%player%}
+
+on quit:
+    delete {tpa::%player%}
+    delete {tpa_type::%player%}

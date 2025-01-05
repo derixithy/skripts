@@ -1,0 +1,16 @@
+#
+# Skript functions
+#
+
+# Server messages
+function serverMessage(players: players, msg: text):
+    send "&6Server &4>>&7 %{_msg}%" to {_players::*}
+
+function serverWarning(players: players, msg: text):
+    send "&6Server &4>>&c %{_msg}%" to {_players::*}
+
+function serverError(players: players, msg: text):
+    send "&6Server &4>>&4 %{_msg}%" to {_players::*}
+
+function serverSuccess(players: players, msg: text):
+    send "&6Server &4>>&2 %{_msg}%" to {_players::*}

@@ -1,0 +1,25 @@
+command /survival:
+    permission: gamemode.survival
+    trigger:
+        execute console command "/gamemode survival %player%"
+        loop all players:
+            loop-player have permission "group.staff":
+                serverMessage(loop-player, "%player%&7 is in survival")
+
+command /creative:
+    permission: gamemode.creative
+    trigger:
+        execute console command "/gamemode creative %player%"
+        loop all players:
+            loop-player have permission "group.staff":
+                serverMessage(loop-player, "%player%&7 is in creative")
+
+command /spectator:
+    permission: gamemode.spectator
+    trigger:
+        execute console command "/gamemode spectator %player%"
+        loop all players:
+            loop-player have permission "group.staff":
+                serverMessage(loop-player, "%player%&7 is in spectator")
+
+

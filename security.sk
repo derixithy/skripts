@@ -1,0 +1,64 @@
+command /ban <offline player> [<text>]:
+    permission: group.admin
+    usage: /ban <player> [reason]
+    trigger:
+        if arg-1 is set:
+            set {_uuid} to uuid of arg-1
+            set {bannedname::%{_uuid}%} to arg-1 # Store player name
+            if arg-1 doesn't have permission "server.ban.bypass":
+                set {banned::%{_uuid}%} to true
+                if arg-2 is set:
+                    set {banreason::%{_uuid}%} to arg-2
+                    serverWarning(all players,"%arg-1% has been banned by %player%. Reason: &f%arg-2%")
+                    if arg-1 is online:
+                        kick arg-1 due to "You have been banned. Reason: %arg-2%"
+                else:
+                    delete {banreason::%{_uuid}%}
+                    serverWarning(all players, "%arg-1% has been banned by %player%")
+                    if arg-1 is online:
+                        kick arg-1 due to "You have been banned."
+            else:
+                serverWarning(player, "You cannot ban this player")
+        else:
+            send "Usage: /ban <player> [reason]" to player
+
+command /unban <text>:
+    permission: server.unban
+    usage: /unban <player>
+    trigger:
+        if arg-1 is set:
+            set {_player} to arg-1 parsed as offline player
+            if {_player} is set:
+                set {_uuid} to uuid of {_player}
+                if {banned::%{_uuid}%} is true:
+                    delete {banned::%{_uuid}%}
+                    delete {banreason::%{_uuid}%}
+                    serverSuccess(all players, "%{_player}% has been unbanned by %player%")
+                else:
+                    send "%{_player}% is not banned." to player
+            else:
+                serverWarning(player, "Could not find player with that name")
+        else:
+            send "Usage: /unban <player>" to player
+
+on connect:
+    set {_uuid} to uuid of player
+    if {banned::%{_uuid}%} is true:
+        if {banreason::%{_uuid}%} is set:
+            kick player due to "&cYou are banned from this server. Reason: &f%{banreason::%{_uuid}%}%"
+        else:
+            kick player due to "&cYou are banned from this server."
+
+
+command /banlist:
+    trigger:
+        serverMessage(player, "Banned spelers:")
+        loop {banned::*}:
+            set {_uuid} to loop-value
+            set {_player} to {bannedname::%{_uuid}%}
+            if {_player} is set:
+                serverMessage(player, "- &f%{_player}%")
+            else:
+                serverMessage(player, "- &f%{_uuid}% (name unknown)")
+
+

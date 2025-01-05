@@ -1,0 +1,158 @@
+#
+# Chat functions
+#
+function chatMessage(players: players, msg: text):
+    send "&6Chat &4>>&7 %{_msg}%" to {_players::*}
+
+function chatWarning(players: players, msg: text):
+    send "&6Chat &4>>&c %{_msg}%" to {_players::*}
+
+function chatError(players: players, msg: text):
+    send "&6Chat &4>>&4 %{_msg}%" to {_players::*}
+
+function chatSuccess(players: players, msg: text):
+    send "&6SChat &4>>&2 %{_msg}%" to {_players::*}
+
+
+
+#
+# Filter bad words
+#
+command /filter [<text>] [<text>]:
+	permission: group.admin
+	trigger:
+		if arg-1 is not set:
+			send "&cUsage: &7/filter (add|remove|list)"
+		else if arg-1 is "add":
+			if arg-2 is not set:
+				send "&cUsage: &7/filter add &c<word>"
+			else:
+				if {chat::filter::*} contains arg-2:
+					chatError(player, "Filter &c%arg-2%&4 bestaat al")
+				else:
+					add arg-2 to {chat::filter::*}
+					chatSuccess(player, "&c%arg-2%&2 toegevoegd aan filter")
+		else if arg-1 is "remove":
+			if arg-2 is not set:
+				send "&cUsage: &7/filter remove &c<word>"
+			else:
+				if {chat::filter::*} contains arg-2:
+					remove arg-2 from {chat::filter::*}
+					chatWarning(player, "&f%arg-2%&c verwijderd van filter")
+				else:
+					chatError(player, "&f%arg-2%&c4 niet gevonden in filter")
+		else if arg-1 is "list":
+			chatMessage(player, "Gefilterde woorden: &f%{chat::filter::*}%")
+
+
+#
+# Highlight names
+#
+command /names [<text>] [<text>]:
+	permission: group.admin
+	trigger:
+		if arg-1 is not set:
+			send "&cUsage: &7/names (add|remove|list)"
+		else if arg-1 is "add":
+			if arg-2 is not set:
+				send "&cUsage: &7/names add &c<word>"
+			else:
+				if {chat::names::*} contains arg-2:
+					chatError(player, "&f%arg-2%&4 word al benadrukt")
+				else:
+					add arg-2 to {chat::names::*}
+					chatSuccess(player, "&f%arg-2%&2 word nu benadrukt")
+		else if arg-1 is "remove":
+			if arg-2 is not set:
+				send "&cUsage: &7/filter remove &c<word>"
+			else:
+				if {chat::names::*} contains arg-2:
+					remove arg-2 from {chat::names::*}
+					chatWarning(player, "&f%arg-2%&c word niet meer benadrukt")
+				else:
+					chatError(player, "&f%arg-2%&4 niet gevonden")
+		else if arg-1 is "list":
+			chatMessage(player, "Gefilterde namen: &f%{chat::names::*}%")
+
+#
+# Mute players
+#
+command /mute <player> [<text>]:
+	permission: group.trusted
+	usage: /mute <player> [reason]
+	trigger:
+		if arg-1 is set:
+			if arg-1 is online:
+				if arg-1 doesn't have permission "server.mute.bypass":
+					set {chat::muted::%arg-1's uuid%} to true
+					if arg-2 is set:
+						set {chat::mutereason::%arg-1's uuid%} to arg-2
+						chatWarning(all players, "%player%&c kan niet meer praten want: &f%arg-1%")
+					else:
+						delete {chat::mutereason::%arg-1's uuid%}
+						chatSuccess(all players, "%player%&2 kan weer praten")
+					chatMessage(arg-1, "De server heeft je chat berichten geblokkerd")
+				else:
+					chatError(player, "Deze gebruiker kan niet op stil gezet worden")
+			else:
+				chatError(player, "Deze gebruiker is niet online")
+		else:
+			chatError(player, "Kies een gebruiker om stil te maken")
+
+command /unmute <player>:
+	permission: group.trusted
+	usage: /unmute <player>
+	trigger:
+		if arg-1 is set:
+			if {chat::muted::%arg-1's uuid%} is true:
+				delete {chat::muted::%arg-1's uuid%}
+				delete {chat::mutereason::%arg-1's uuid%}
+				chatMessage(all players, "Van %player%&7 mag &f%arg-1%&7 weer praten")
+				chatWarning(arg-1, "Je mag niet meer praten")
+			else:
+				chatError(player, "%arg-1%&4 is niet op stil gezet")
+		else:
+			chatError(player, "Kies een gebruiker om stil te maken")
+
+
+#
+# Chat functions
+#
+on chat:
+	# Set prefix {prefix}{name}&r: {message}
+	set chat format to "%player's prefix%&l%player's display name%:&r %message%"
+
+
+	# Mute players
+	if {chat::muted::%player's uuid%} is true:
+		cancel event
+		if {chat::mutereason::%player's uuid%} is set:
+			chatMessage(player, "Je kan niet meer praten, want: &c%{chat::mutereason::%player's uuid%}%")
+		else:
+			chatMessage(player, "Je kan niet meer praten")
+		stop
+	
+	# Filter Bad words
+	loop {chat::filter::*}:
+		if uncolored message contains loop-value:
+			cancel event
+			chatWarning(player, "Je bericht bevat een geblokkeerde woord: &c%loop-value%&c en is verwijderd")
+			loop all players:
+				loop-player have permission "group.admin":
+					chatMessage(loop-player, "%player%&7 zegt: &c%message%")
+			stop
+
+	# Highlight names
+	loop all players:
+		if message contains loop-player:
+			play sound "entity_experience_orb_pickup" to loop-player
+			replace all "%loop-player%" in message with "&9%loop-player%&f"
+
+	loop {chat::names::*}:
+		if message contains loop-value:
+			replace every "%loop-value%" in message with "&9%loop-value%&f"
+	
+	# Done
+	stop
+	
+	

@@ -1,0 +1,23 @@
+on first join:
+    serverWarning(player, "Je kunt nog niet bouwen")
+    serverMessage(player, "Vraag een trusted, staff of admin voor toestemming")
+
+    set the join message to "&6Server &4>>&8 Let's welcome %player%"
+
+
+on join:
+    set the player's tablist name to "%player's prefix%&f %player%"
+
+    #set the join message to "&4>>&7 Oh look, &6%player%&7 joined! :)"
+    message "&6Server &4>> &7Welkom terug, je kunt hulp krijgen in &f/help"
+    if player has permission "group.admin":
+        set the join message to "&6Server &4>>&8 Oh look, &c%player%&8 joined! :)"
+    else if player has permission "group.trusted":
+        set the join message to "&6Server &4>>&8 Oh look, &6%player%&8 joined! :)"
+    else if player has permission "group.user":
+        set the join message to "&6Server &4>>&8 Oh look, &3%player%&8 joined! :)"
+    else:
+        set the join message to "&6Server &4>>&8 Oh look, &7%player%&8 joined! :)"
+
+on quit:
+    set the quit message to "Oh no, %player% left! :("
