@@ -13,6 +13,9 @@ function chatError(players: players, msg: text):
 function chatSuccess(players: players, msg: text):
     send "&6SChat &4>>&2 %{_msg}%" to {_players::*}
 
+function staffMessage(players: players, msg: text):
+    send "&5Staff &4>>&7 %{_msg}%" to {_players::*}
+
 
 
 #
@@ -64,7 +67,7 @@ command /names [<text>] [<text>]:
 					chatSuccess(player, "&f%arg-2%&2 word nu benadrukt")
 		else if arg-1 is "remove":
 			if arg-2 is not set:
-				send "&cUsage: &7/filter remove &c<word>"
+				send "&cUsage: &7/names remove &c<word>"
 			else:
 				if {chat::names::*} contains arg-2:
 					remove arg-2 from {chat::names::*}
@@ -73,6 +76,42 @@ command /names [<text>] [<text>]:
 					chatError(player, "&f%arg-2%&4 niet gevonden")
 		else if arg-1 is "list":
 			chatMessage(player, "Gefilterde namen: &f%{chat::names::*}%")
+		else if arg-1 is "whipe":
+			delete {chat::names::*}
+			chatWarning(player, "Alle namen verwijderd")
+
+
+#
+# Highlight names
+#
+command /highlight [<text>] [<text>]:
+	permission: group.trusted
+	trigger:
+		if arg-1 is not set:
+			send "&cUsage: &7/highlight (add|remove|list)"
+		else if arg-1 is "add":
+			if arg-2 is not set:
+				send "&cUsage: &7/highlight add &c<word>"
+			else:
+				if {chat::words::*} contains arg-2:
+					chatError(player, "&f%arg-2%&4 word al benadrukt")
+				else:
+					add arg-2 to {chat::words::*}
+					chatSuccess(player, "&f%arg-2%&2 word nu benadrukt")
+		else if arg-1 is "remove":
+			if arg-2 is not set:
+				send "&cUsage: &7/highlight remove &c<word>"
+			else:
+				if {chat::words::*} contains arg-2:
+					remove arg-2 from {chat::words::*}
+					chatWarning(player, "&f%arg-2%&c word niet meer benadrukt")
+				else:
+					chatError(player, "&f%arg-2%&4 niet gevonden")
+		else if arg-1 is "list":
+			chatMessage(player, "Gefilterde woorden: &f%{chat::words::*}%")
+		else if arg-1 is "whipe":
+			delete {chat::words::*}
+			chatWarning(player, "Alle woorden verwijderd")
 
 #
 # Mute players
@@ -116,11 +155,27 @@ command /unmute <player>:
 
 
 #
+# Staff chat
+#
+command /staff [<text>]:
+	permission: group.staff
+	trigger:
+		if arg-1 is set:
+			chatMessage(player, "Schakeld prive chat in voor Staff en Admin leden")
+		else if {chat::staff::%player's uuid%} is set:
+			delete {chat::staff::%player's uuid%}
+			chatMessage(player, "Staff chat is uitgeschakeld")
+		else:
+			set {chat::staff::%player's uuid%} to true
+			chatMessage(player, "Staff chat is ingeschakeld")
+
+
+
+#
 # Chat functions
 #
 on chat:
 	# Set prefix {prefix}{name}&r: {message}
-	set chat format to "%player's prefix%&l%player's display name%:&r %message%"
 
 
 	# Mute players
@@ -141,18 +196,40 @@ on chat:
 				loop-player have permission "group.admin":
 					chatMessage(loop-player, "%player%&7 zegt: &c%message%")
 			stop
+	
+	# Filter Staff chat
+	if {chat::staff::%player's uuid%} is set:
+		cancel event
+		loop all players:
+			if loop-player has permission "group.staff":
+				staffMessage(loop-player, "%player's prefix% %player%: &f%message%")
 
 	# Highlight names
 	loop all players:
-		if message contains loop-player:
+		if message contains "%loop-player%":
+			if loop-player has permission "group.admin":
+				replace all "%loop-player%" with "&c%loop-player%&f" in the message
+			else if loop-player has permission "group.staff":
+				replace all "%loop-player%" with "&5%loop-player%&f" in the message
+			else if loop-player has permission "group.trusted":
+				replace all "%loop-player%" with "&6%loop-player%&f" in the message
+			else if loop-player has permission "group.user":
+				replace all "%loop-player%" with "&3%loop-player%&f" in the message
+			else:
+				replace all "%loop-player%" with "&7%loop-player%&f" in the message
 			play sound "entity_experience_orb_pickup" to loop-player
-			replace all "%loop-player%" in message with "&9%loop-player%&f"
 
 	loop {chat::names::*}:
-		if message contains loop-value:
-			replace every "%loop-value%" in message with "&9%loop-value%&f"
+		if message contains "%loop-value%":
+			replace all "%loop-value%" with "&3%loop-value%&f" in the message
+
+	loop {chat::words::*}:
+		if message contains "%loop-value%":
+			replace all "%loop-value%" with "&6%loop-value%&f" in the message
 	
-	# Done
-	stop
-	
-	
+	set chat format to "%player's prefix%&7%player's display name%:&f %colored message%"
+
+
+on quit:
+	if {chat::staff::%player's uuid%} is set:
+		delete {chat::staff::%player's uuid%}
