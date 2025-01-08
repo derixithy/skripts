@@ -16,6 +16,19 @@ command /help:
             message "&7Typ: &f/staff&7 om er weer uit te gaan"
 
 
+command /staff:
+	description: Weergeeft lijst van online stafleden
+	trigger:
+		loop all players:
+			loop-player has permission "group.staff"
+			add loop-player to {_online staff::*}
+ 
+		size of {_online staff::*} is 0:
+			message "Geen stafleden online ;)!"
+		else:
+			message "Online staf: %{_online staff::*}%"
+
+
 command /menu [<text>] [<player>]:
     permission: group.user
     trigger:
