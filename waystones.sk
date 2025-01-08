@@ -1,5 +1,5 @@
 options:
-    waystone block: white wool
+    waystone block: lodestone
     chat prefix: &6Waystone &4>>
     name world: Overworld
     name nether: nether
