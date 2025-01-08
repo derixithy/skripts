@@ -1,0 +1,135 @@
+#
+# Waystones admin skript
+
+
+function waystoneAdminGUI(player:player, page: number):
+    play sound "ENTITY_EGG_THROW" to {_player}
+    set {_pageStart} to 45*{_page}
+    set {_s} to 0
+    set metadata tag "WAYSTONE_ADMIN_GUI" of {_player} to chest inventory with 6 rows named "Waystones Administratie"
+    loop {waystone::location::*}:
+
+        loop-iteration > {_pageStart}
+        if {waystone::item::%loop-index%} is set:
+            set {_item} to {waystone::item::%loop-index%}
+        else:
+            set {_item} to ender pearl
+        set {_x} to {waystone::x::%loop-index%}
+        set {_y} to {waystone::y::%loop-index%}
+        set {_z} to {waystone::z::%loop-index%}
+        set {_world} to {waystone::world::%loop-index%}
+        set slot {_s} of metadata tag "WAYSTONE_ADMIN_GUI" of {_player} to {_item} named "&f%{waystone::location::%loop-index%}%" with lore "&8Klik om te teleporteren", "&8Eigenaar: &3%{waystone::owner::%loop-index%}%", "&8Locatie:&3 %{_x}%, %{_y}%, %{_z}%" and "&8Wereld:&3 %{_world}%"
+        add 1 to {_s}
+        if ({_s}) >= 45:
+            exit loop
+    set slot 45 of metadata tag "WAYSTONE_ADMIN_GUI" of {_player} to tall grass
+    set slot 46 of metadata tag "WAYSTONE_ADMIN_GUI" of {_player} to tall grass
+    set slot 47 of metadata tag "WAYSTONE_ADMIN_GUI" of {_player} to tall grass
+    set slot 48 of metadata tag "WAYSTONE_ADMIN_GUI" of {_player} to tall grass
+    set slot 50 of metadata tag "WAYSTONE_ADMIN_GUI" of {_player} to tall grass
+    set slot 51 of metadata tag "WAYSTONE_ADMIN_GUI" of {_player} to tall grass
+    set slot 52 of metadata tag "WAYSTONE_ADMIN_GUI" of {_player} to tall grass
+    set slot 53 of metadata tag "WAYSTONE_ADMIN_GUI" of {_player} to tall grass
+    set slot 49 of metadata tag "WAYSTONE_ADMIN_GUI" of {_player} to {_player}'s skull named "&fWaystones" with lore "Pagina: &7%{_page}%/%round(size of {waystone::location::*}/(9*6))%"
+    if (size of {waystone::location::*}) > {_pageStart} + 45:
+        set slot 50 of metadata tag "WAYSTONE_ADMIN_GUI" of {_player} to ("MHF_ArrowRight" parsed as offline player)'s skull named "&fVolgende" with lore "&7%{_page}%"
+    if {_page} > 0:
+        set slot 48 of metadata tag "WAYSTONE_ADMIN_GUI" of {_player} to ("MHF_ArrowLeft" parsed as offline player)'s skull named "&fVorige" with lore "&7%{_page}%"
+ 
+    open metadata tag "WAYSTONE_ADMIN_GUI" of {_player} to {_player}
+
+
+function waystoneEditGUI(player: player, location: text):
+    set metadata tag "WAYSTONE_ADMIN_EDIT" of {_player} to chest inventory with 1 rows named "Waystone wijzigen"
+    set {_loc} to "%{_location}%"
+    set {_owner} to {waystone::owner::%{_loc}%}
+    set {_p} to "%{_owner}%" parsed as offline player
+    
+    # Set inventory items
+    set slot 0 of metadata tag "WAYSTONE_ADMIN_EDIT" of {_player} to anvil named "&fHernoemen" with lore "Klik om te hernoemen"
+    set slot 1 of metadata tag "WAYSTONE_ADMIN_EDIT" of {_player} to {_p}'s skull named "&fEigenaar veranderen" with lore "Klik om eigenaar te veranderen"
+    set slot 2 of metadata tag "WAYSTONE_ADMIN_EDIT" of {_player} to tall grass
+    set slot 3 of metadata tag "WAYSTONE_ADMIN_EDIT" of {_player} to tall grass
+    set slot 4 of metadata tag "WAYSTONE_ADMIN_EDIT" of {_player} to ender pearl named "&f%{waystone::location::%{_loc}%}%" with lore "Bezig met wijzigen van '%{waystone::location::%{_loc}%}%'" and "&8Eigenaar: &3%{_owner}%"
+    set slot 5 of metadata tag "WAYSTONE_ADMIN_EDIT" of {_player} to tall grass
+    set slot 6 of metadata tag "WAYSTONE_ADMIN_EDIT" of {_player} to tall grass
+    set slot 7 of metadata tag "WAYSTONE_ADMIN_EDIT" of {_player} to orange glass pane named "&fTerug"
+    set slot 8 of metadata tag "WAYSTONE_ADMIN_EDIT" of {_player} to red glass pane named "&fAnnuleren"
+
+    # open inventory
+    open metadata tag "WAYSTONE_ADMIN_EDIT" of {_player} to {_player}
+
+
+
+on inventory click:
+    event-inventory != player' inventory:
+
+        # Waystone GUI
+        event-inventory = (metadata tag "WAYSTONE_ADMIN_GUI" of player):
+            cancel event
+            event-slot != air:
+                if index of event-slot = 50:
+                    set {_invname} to (uncoloured line 1 of lore of event-slot parsed as integer)+1
+                    waystoneAdminGUI(player, {_invname})
+                else if index of event-slot = 48:
+                    set {_invname} to (uncoloured line 1 of lore of event-slot parsed as integer)-1
+                    waystoneAdminGUI(player, {_invname})
+                else if index of event-slot = 49:
+                    waystoneAdminGUI(player, 0)
+                else:
+                    if index of event-slot is between 0 and 44:
+                        set {_name} to uncolored name of event-item
+                        set {_location} to {waystone::name::%{_name}%}
+                        waystoneEditGUI(player, {_location})
+        
+        # Set waystone item
+        event-inventory = (metadata tag "WAYSTONE_ADMIN_EDIT" of player):
+            cancel event
+            event-slot != tall grass:
+                if index of event-slot = 0:
+                    set {_name} to uncolored name of item in slot 4 of metadata tag "WAYSTONE_ADMIN_EDIT" of player
+                    set {_location} to {waystone::name::%{_name}%}
+                    set {waystone::renaming::%player%} to "%{_location}%"
+                    waystoneMessage(player, "Typ een naam voor je waystone in de chat")
+                    close player's inventory
+                else if index of event-slot = 1:
+                    set {_name} to uncolored name of item in slot 4 of metadata tag "WAYSTONE_ADMIN_EDIT" of player
+                    set {_location} to {waystone::name::%{_name}%}
+                    set {waystone::rehome::%player%} to "%{_location}%"
+                    waystoneMessage(player, "Typ de naam van de nieuwe eigenaar in de chat")
+                    close player's inventory
+                else if index of event-slot = 7:
+                    waystoneAdminGUI(player, 0)
+                else if index of event-slot = 8:
+                    close player's inventory
+
+
+
+
+on chat:
+    if {waystone::rehome::%player%} is set:
+        set {_owner} to uncolored message
+        set {_location} to {waystone::rehome::%player%}
+        set {_name} to {waystone::location::%{_location}%}
+        cancel event
+        if {_owner} is "cancel":
+            delete {waystone::rehome::%player%}
+            waystoneWarning(player, "Waystone eigenaar veranderen beindigd")
+        else if {_owner} parsed as offline player is offline player:
+            set {_owner} to {_owner} parsed as offline player
+            set {waystone::owner::%{_location}%} to {_owner}
+            delete {waystone::rehome::%player%}
+            waystoneSuccess(player, "Waystone %{_name}% is nu van %{_owner}%")
+        else:
+            waystoneWarning(player, "Kan geen speler vinden met de naam '%{_owner}%'")
+        stop
+
+
+
+command /waystoneadmin:
+    permission: group.admin
+    trigger:
+        waystoneAdminGUI(player, 0)
+
+
+
