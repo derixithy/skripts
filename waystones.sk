@@ -1,0 +1,319 @@
+options:
+    waystone block: white wool
+    chat prefix: &6Waystone &4>>
+    name world: Overworld
+    name nether: nether
+    name the end: The End
+
+
+#
+# Waystone functions
+#
+function waystoneMessage(players: players, msg: text):
+    send "{@chat prefix}&7 %{_msg}%" to {_players::*}
+
+function waystoneWarning(players: players, msg: text):
+    send "{@chat prefix}&c %{_msg}%" to {_players::*}
+
+function waystoneError(players: players, msg: text):
+    send "{@chat prefix}&4 %{_msg}%" to {_players::*}
+
+function waystoneSuccess(players: players, msg: text):
+    send "{@chat prefix}&2 %{_msg}%" to {_players::*}
+
+
+function waystoneGUI(player:player, page: number):
+    play sound "ENTITY_EGG_THROW" to {_player}
+    set {_pageStart} to 45*{_page}
+    set {_s} to 0
+    set metadata tag "WAYSTONE_GUI" of {_player} to chest inventory with 6 rows named "Waystones"
+    loop {waystone::location::*}:
+
+        loop-iteration > {_pageStart}
+        if {waystone::item::%loop-index%} is set:
+            set {_item} to {waystone::item::%loop-index%}
+        else:
+            set {_item} to ender pearl
+        set {_x} to {waystone::x::%loop-index%}
+        set {_y} to {waystone::y::%loop-index%}
+        set {_z} to {waystone::z::%loop-index%}
+        set {_world} to {waystone::world::%loop-index%}
+        set slot {_s} of metadata tag "WAYSTONE_GUI" of {_player} to {_item} named "&f%{waystone::location::%loop-index%}%" with lore "&8Klik om te teleporteren", "&8Eigenaar: &3%{waystone::owner::%loop-index%}%", "&8Locatie:&3 %{_x}%, %{_y}%, %{_z}%" and "&8Wereld:&3 %{_world}%"
+        add 1 to {_s}
+        if ({_s}) >= 45:
+            exit loop
+    set slot 45 of metadata tag "WAYSTONE_GUI" of {_player} to tall grass
+    set slot 46 of metadata tag "WAYSTONE_GUI" of {_player} to tall grass
+    set slot 47 of metadata tag "WAYSTONE_GUI" of {_player} to tall grass
+    set slot 48 of metadata tag "WAYSTONE_GUI" of {_player} to tall grass
+    set slot 50 of metadata tag "WAYSTONE_GUI" of {_player} to tall grass
+    set slot 51 of metadata tag "WAYSTONE_GUI" of {_player} to tall grass
+    set slot 52 of metadata tag "WAYSTONE_GUI" of {_player} to tall grass
+    set slot 53 of metadata tag "WAYSTONE_GUI" of {_player} to tall grass
+    set slot 49 of metadata tag "WAYSTONE_GUI" of {_player} to {_player}'s skull named "Waystones" with lore "Pagina: &7%{_page}%/%round(size of {waystone::location::*}/(9*6))%"
+    if (size of {waystone::location::*}) > {_pageStart} + 45:
+        set slot 50 of metadata tag "WAYSTONE_GUI" of {_player} to ("MHF_ArrowRight" parsed as offline player)'s skull named "Volgende" with lore "&7%{_page}%"
+    if {_page} > 0:
+        set slot 48 of metadata tag "WAYSTONE_GUI" of {_player} to ("MHF_ArrowLeft" parsed as offline player)'s skull named "Vorige" with lore "&7%{_page}%"
+ 
+    open metadata tag "WAYSTONE_GUI" of {_player} to {_player}
+
+
+
+function waystoneItemGUI(player:player, item: item, location: location):
+    set metadata tag "WAYSTONE_ITEM_CONFIRM" of {_player} to chest inventory with 1 rows named "Wijzig Waystone"
+    set {_loc} to "%{_location}%"
+    
+    # Set inventory items
+    set slot 0 of metadata tag "WAYSTONE_ITEM_CONFIRM" of {_player} to green glass pane named "Accepteren" with lore "Klik om deze item te gebruiken"
+    set slot 1 of metadata tag "WAYSTONE_ITEM_CONFIRM" of {_player} to tall grass
+    set slot 2 of metadata tag "WAYSTONE_ITEM_CONFIRM" of {_player} to tall grass
+    set slot 3 of metadata tag "WAYSTONE_ITEM_CONFIRM" of {_player} to tall grass
+    set slot 4 of metadata tag "WAYSTONE_ITEM_CONFIRM" of {_player} to {waystone::item::%{_loc}%} named "&f%{waystone::location::%{_loc}%}%" with lore "Klik accepteren om deze item te gebruiken"
+    set slot 5 of metadata tag "WAYSTONE_ITEM_CONFIRM" of {_player} to tall grass
+    set slot 6 of metadata tag "WAYSTONE_ITEM_CONFIRM" of {_player} to tall grass
+    set slot 7 of metadata tag "WAYSTONE_ITEM_CONFIRM" of {_player} to tall grass
+    set slot 8 of metadata tag "WAYSTONE_ITEM_CONFIRM" of {_player} to red glass pane named "Annuleren"
+
+    # open inventory
+    open metadata tag "WAYSTONE_ITEM_CONFIRM" of {_player} to {_player}
+
+
+function waystoneRenameGUI(player: player, location: location):
+    set metadata tag "WAYSTONE_RENAME" of {_player} to chest inventory with 1 rows named "Waystone Hernoemen"
+    set {_loc} to "%{_location}%"
+    
+    # Set inventory items
+    set slot 0 of metadata tag "WAYSTONE_RENAME" of {_player} to green glass pane named "Hernoemen" with lore "Klik om te hernoemen"
+    set slot 1 of metadata tag "WAYSTONE_RENAME" of {_player} to tall grass
+    set slot 2 of metadata tag "WAYSTONE_RENAME" of {_player} to tall grass
+    set slot 3 of metadata tag "WAYSTONE_RENAME" of {_player} to tall grass
+    set slot 4 of metadata tag "WAYSTONE_RENAME" of {_player} to ender pearl named "&f%{waystone::location::%{_loc}%}%" with lore "Klik accepteren om de waystone te hernoemen" and "%{_location}%"
+    set slot 5 of metadata tag "WAYSTONE_RENAME" of {_player} to tall grass
+    set slot 6 of metadata tag "WAYSTONE_RENAME" of {_player} to tall grass
+    set slot 7 of metadata tag "WAYSTONE_RENAME" of {_player} to tall grass
+    set slot 8 of metadata tag "WAYSTONE_RENAME" of {_player} to red glass pane named "Annuleren"
+
+    # open inventory
+    open metadata tag "WAYSTONE_RENAME" of {_player} to {_player}
+
+
+
+on inventory click:
+    event-inventory != player' inventory:
+
+        # Waystone GUI
+        event-inventory = (metadata tag "WAYSTONE_GUI" of player):
+            cancel event
+            event-slot != air:
+                if index of event-slot = 50:
+                    set {_invname} to (uncoloured line 1 of lore of event-slot parsed as integer)+1
+                    waystoneGUI(player, {_invname})
+                else if index of event-slot = 48:
+                    set {_invname} to (uncoloured line 1 of lore of event-slot parsed as integer)-1
+                    waystoneGUI(player, {_invname})
+                else if index of event-slot = 49:
+                    waystoneGUI(player, 0)
+                else:
+                    if index of event-slot is between 0 and 44:
+                        set {_name} to uncolored name of event-item
+                        set {_location} to {waystone::name::%{_name}%}
+
+                        set {_x} to {waystone::x::%{_location}%}
+                        set {_y} to {waystone::y::%{_location}%}
+                        set {_z} to {waystone::z::%{_location}%}
+
+                        set {_block} to location at {_x}, {_y}, {_z} in world {waystone::world::%{_location}%}
+
+                        #safeTeleport(player, {_warp})
+                        if block north of {_block} is air:
+                            set {_safe} to location of block north of {_block}
+                        else if block east of {_block} is air:
+                            set {_safe} to location of block east of {_block}
+                        else if block south of {_block} is air:
+                            set {_safe} to location of block south of {_block}
+                        else if block west of {_block} is air:
+                            set {_safe} to location of block west of {_block}
+                        else:
+                            set {_safe} to location of block above {_block}
+
+                        teleport player to location of {_safe}
+                        play sound "ENTITY_ENDERMAN_TELEPORT" to player
+        
+        # Set waystone item
+        event-inventory = (metadata tag "WAYSTONE_ITEM_CONFIRM" of player):
+            cancel event
+            event-slot != air:
+                if index of event-slot = 0:
+                    set {_item} to 1 of player's held item
+                    set {_name} to uncolored name of item in slot 4 of metadata tag "WAYSTONE_ITEM_CONFIRM" of player
+                    set {_location} to {waystone::name::%{_name}%}
+
+                    set {waystone::item::%{_location}%} to "%{_item}%" parsed as item type
+                    waystoneSuccess(player, "Waystone item opgeslagen")
+                    close player's inventory
+                else if index of event-slot = 8:
+                    close player's inventory
+        
+        # Rename waystone
+        event-inventory = (metadata tag "WAYSTONE_RENAME" of player):
+            cancel event
+            event-slot != tall grass:
+                if index of event-slot = 0:
+                    set {_name} to uncolored name of item in slot 4 of metadata tag "WAYSTONE_RENAME" of player
+                    set {_location} to {waystone::name::%{_name}%}
+                    set {waystone::renaming::%player%} to "%{_location}%"
+                    waystoneMessage(player, "Typ een naam voor je waystone in de chat")
+                    close player's inventory
+                else if index of event-slot = 8:
+                    close player's inventory
+
+
+on rightclick on a {@waystone block}:
+    cancel event
+
+    set {_location} to "%event-location%"
+
+    if {waystone::location::%{_location}%} is set:
+
+        # If player is sneaking
+        if player is sneaking:
+            if {waystone::owner::%{_location}%} is player:
+                if player is not holding an air:
+                    set {_item} to player's held item
+                    set {_item} to "%{_item}%" parsed as item type
+                    set {_location} to event-location
+                    if {_item} is item type:
+                        waystoneItemGUI(player, {_item}, {_location})
+                    else:
+                        waystoneError(player, "Kan dit item niet als waystone item instellen")
+                else:
+                    waystoneRenameGUI(player, event-location)
+            else:
+                # Try to open waystone gui
+                waystoneGUI(player, 0)
+
+        else:
+            # Try to open waystone gui
+            waystoneGUI(player, 0)
+    
+    else: # create waystone
+        waystoneMessage(player, "Typ een naam voor je waystone in de chat")
+        set {waystone::registering::%player%} to "%event-location%"
+        set {waystone::registering::%player%::x} to event-location's x-coord
+        set {waystone::registering::%player%::y} to event-location's y-coord
+        set {waystone::registering::%player%::z} to event-location's z-coord
+        set {waystone::registering::%player%::world} to event-location's world
+
+
+on block break:
+    if event-block is {@waystone block}:
+        set {_location} to "%event-location%"
+
+        if {waystone::location::%{_location}%} is set:
+            send "waystone block" to player
+            if {waystone::owner::%{_location}%} is player:
+                set {_name} to {waystone::location::%{_location}%}
+                delete {waystone::location::%{_location}%}
+                delete {waystone::name::%{_name}%}
+                delete {waystone::owner::%{_location}%}
+                delete {waystone::item::%{_location}%}
+                delete {waystone::x::%{_location}%}
+                delete {waystone::y::%{_location}%}
+                delete {waystone::z::%{_location}%}
+                delete {waystone::world::%{_location}%}
+                waystoneWarning(player, "Waystone '%{_name}%' verwijderd")
+            else:
+                cancel event
+                waystoneWarning(player, "Je kan een ander zijn Waystone niet verwijderen")
+
+
+
+on chat:
+    if {waystone::registering::%player%} is set:
+        set {_name} to uncolored message
+        set {_location} to {waystone::registering::%player%}
+        cancel event
+        if {waystone::name::%{_name}%} is not set:
+            # Set name
+            set {waystone::location::%{_location}%} to {_name}
+            set {waystone::name::%{_name}%} to "%{_location}%"
+            # Set coordinates
+            set {waystone::x::%{_location}%} to {waystone::registering::%player%::x}
+            set {waystone::y::%{_location}%} to {waystone::registering::%player%::y}
+            set {waystone::z::%{_location}%} to {waystone::registering::%player%::z}
+            set {waystone::world::%{_location}%} to {waystone::registering::%player%::world}
+
+            set {waystone::owner::%{_location}%} to player
+            set {waystone::item::%{_location}%} to "ender pearl" parsed as an item type
+            delete {waystone::registering::%player%}
+            waystoneSuccess(player, "Waystone %{_name}% opgeslagen")
+        else:
+            waystoneWarning(player, "Er bestaat al een waystone met de naam '%{_name}%'")
+        stop
+
+    else if {waystone::renaming::%player%} is set:
+        set {_name} to uncolored message
+        set {_location} to {waystone::renaming::%player%}
+        set {_oldName} to {waystone::location::%{_location}%} 
+        cancel event
+        if {waystone::name::%{_name}%} is not set:
+            set {waystone::location::%{_location}%} to {_name}
+            set {waystone::name::%{_name}%} to "%{_location}%"
+            delete {waystone::name::%{_oldName}%}
+            delete {waystone::renaming::%player%}
+            waystoneSuccess(player, "Waystone %{_name}% opgeslagen")
+        else:
+            waystoneWarning(player, "Er bestaat al een waystone met de naam '%{_name}%'")
+        stop
+
+
+
+
+
+command /waystonedebug:
+    permission: group.user
+    trigger:
+        send "&8NWarps:" to player
+        loop {waystone::warp::*}:
+            send "%loop-index%: %loop-value%" to player
+        send "&8Names:" to player
+        loop {waystone::name::*}:
+            send "%loop-index%: %loop-value%" to player
+        send "&8Locations:" to player
+        loop {waystone::location::*}:
+            send "%loop-index%: %loop-value%" to player
+        send "&8Items:" to player
+        loop {waystone::item::*}:
+            send "%loop-index%: %loop-value%" to player
+        send "&8Renaming:" to player
+        loop {waystone::renaming::*}:
+            send "%loop-index%: %loop-value%" to player
+        send "&8Registering:" to player
+        loop {waystone::registering::*}:
+            send "%loop-index%: %loop-value%" to player
+        send "&8x-coord:" to player
+        loop {waystone::x::*}:
+            send "%loop-index%: %loop-value%" to player
+        send "&8y-coord:" to player
+        loop {waystone::y::*}:
+            send "%loop-index%: %loop-value%" to player
+        send "&8z-coord:" to player
+        loop {waystone::z::*}:
+            send "%loop-index%: %loop-value%" to player
+
+
+command /waystonewhipe:
+    permission: group.admin
+    trigger:
+        delete {waystone::name::*}
+        delete {waystone::location::*}
+        delete {waystone::warp::*}
+        delete {waystone::owner::*}
+        delete {waystone::registering::*}
+        delete {waystone::item::*}
+        delete {waystone::x::*}
+        delete {waystone::y::*}
+        delete {waystone::z::*}
+
+
