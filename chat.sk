@@ -22,7 +22,7 @@ function staffMessage(players: players, msg: text):
 # Filter bad words
 #
 command /filter [<text>] [<text>]:
-	permission: group.admin
+	permission: group.staff
 	trigger:
 		if arg-1 is not set:
 			send "&cUsage: &7/filter (add|remove|list)"
@@ -52,7 +52,7 @@ command /filter [<text>] [<text>]:
 # Highlight names
 #
 command /names [<text>] [<text>]:
-	permission: group.admin
+	permission: group.staff
 	trigger:
 		if arg-1 is not set:
 			send "&cUsage: &7/names (add|remove|list)"
@@ -117,7 +117,7 @@ command /highlight [<text>] [<text>]:
 # Mute players
 #
 command /mute <player> [<text>]:
-	permission: group.trusted
+	permission: group.staff
 	usage: /mute <player> [reason]
 	trigger:
 		if arg-1 is set:
@@ -139,7 +139,7 @@ command /mute <player> [<text>]:
 			chatError(player, "Kies een gebruiker om stil te maken")
 
 command /unmute <player>:
-	permission: group.trusted
+	permission: group.staff
 	usage: /unmute <player>
 	trigger:
 		if arg-1 is set:
@@ -157,8 +157,9 @@ command /unmute <player>:
 #
 # Staff chat
 #
-command /staff [<text>]:
+command /staffchat [<text>]:
 	permission: group.staff
+	aliases: /schat
 	trigger:
 		if arg-1 is set:
 			chatMessage(player, "Schakeld prive chat in voor Staff en Admin leden")
@@ -175,17 +176,6 @@ command /staff [<text>]:
 # Chat functions
 #
 on chat:
-	# Set prefix {prefix}{name}&r: {message}
-
-
-	# Mute players
-	if {chat::muted::%player's uuid%} is true:
-		cancel event
-		if {chat::mutereason::%player's uuid%} is set:
-			chatMessage(player, "Je kan niet meer praten, want: &c%{chat::mutereason::%player's uuid%}%")
-		else:
-			chatMessage(player, "Je kan niet meer praten")
-		stop
 	
 	# Filter Bad words
 	loop {chat::filter::*}:
@@ -196,6 +186,15 @@ on chat:
 				loop-player have permission "group.admin":
 					chatMessage(loop-player, "%player%&7 zegt: &c%message%")
 			stop
+
+	# Mute players
+	if {chat::muted::%player's uuid%} is true:
+		cancel event
+		if {chat::mutereason::%player's uuid%} is set:
+			chatMessage(player, "Je kan niet meer praten, want: &c%{chat::mutereason::%player's uuid%}%")
+		else:
+			chatMessage(player, "Je kan niet meer praten")
+		stop
 	
 	# Filter Staff chat
 	if {chat::staff::%player's uuid%} is set:
@@ -227,6 +226,7 @@ on chat:
 		if message contains "%loop-value%":
 			replace all "%loop-value%" with "&6%loop-value%&f" in the message
 	
+	# Set prefix {prefix}{name}&r: {message}
 	set chat format to "%player's prefix%&7%player's display name%:&f %colored message%"
 
 
