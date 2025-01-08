@@ -50,11 +50,11 @@ function waystoneGUI(player:player, page: number):
     set slot 51 of metadata tag "WAYSTONE_GUI" of {_player} to tall grass
     set slot 52 of metadata tag "WAYSTONE_GUI" of {_player} to tall grass
     set slot 53 of metadata tag "WAYSTONE_GUI" of {_player} to tall grass
-    set slot 49 of metadata tag "WAYSTONE_GUI" of {_player} to {_player}'s skull named "Waystones" with lore "Pagina: &7%{_page}%/%round(size of {waystone::location::*}/(9*6))%"
+    set slot 49 of metadata tag "WAYSTONE_GUI" of {_player} to {_player}'s skull named "&fWaystones" with lore "Pagina: &7%{_page}%/%round(size of {waystone::location::*}/(9*6))%"
     if (size of {waystone::location::*}) > {_pageStart} + 45:
-        set slot 50 of metadata tag "WAYSTONE_GUI" of {_player} to ("MHF_ArrowRight" parsed as offline player)'s skull named "Volgende" with lore "&7%{_page}%"
+        set slot 50 of metadata tag "WAYSTONE_GUI" of {_player} to ("MHF_ArrowRight" parsed as offline player)'s skull named "&fVolgende" with lore "&7%{_page}%"
     if {_page} > 0:
-        set slot 48 of metadata tag "WAYSTONE_GUI" of {_player} to ("MHF_ArrowLeft" parsed as offline player)'s skull named "Vorige" with lore "&7%{_page}%"
+        set slot 48 of metadata tag "WAYSTONE_GUI" of {_player} to ("MHF_ArrowLeft" parsed as offline player)'s skull named "&fVorige" with lore "&7%{_page}%"
  
     open metadata tag "WAYSTONE_GUI" of {_player} to {_player}
 
@@ -65,7 +65,7 @@ function waystoneItemGUI(player:player, item: item, location: location):
     set {_loc} to "%{_location}%"
     
     # Set inventory items
-    set slot 0 of metadata tag "WAYSTONE_ITEM_CONFIRM" of {_player} to green glass pane named "Accepteren" with lore "Klik om deze item te gebruiken"
+    set slot 0 of metadata tag "WAYSTONE_ITEM_CONFIRM" of {_player} to green glass pane named "&fAccepteren" with lore "Klik om deze item te gebruiken"
     set slot 1 of metadata tag "WAYSTONE_ITEM_CONFIRM" of {_player} to tall grass
     set slot 2 of metadata tag "WAYSTONE_ITEM_CONFIRM" of {_player} to tall grass
     set slot 3 of metadata tag "WAYSTONE_ITEM_CONFIRM" of {_player} to tall grass
@@ -73,7 +73,7 @@ function waystoneItemGUI(player:player, item: item, location: location):
     set slot 5 of metadata tag "WAYSTONE_ITEM_CONFIRM" of {_player} to tall grass
     set slot 6 of metadata tag "WAYSTONE_ITEM_CONFIRM" of {_player} to tall grass
     set slot 7 of metadata tag "WAYSTONE_ITEM_CONFIRM" of {_player} to tall grass
-    set slot 8 of metadata tag "WAYSTONE_ITEM_CONFIRM" of {_player} to red glass pane named "Annuleren"
+    set slot 8 of metadata tag "WAYSTONE_ITEM_CONFIRM" of {_player} to red glass pane named "&fAnnuleren"
 
     # open inventory
     open metadata tag "WAYSTONE_ITEM_CONFIRM" of {_player} to {_player}
@@ -84,15 +84,15 @@ function waystoneRenameGUI(player: player, location: location):
     set {_loc} to "%{_location}%"
     
     # Set inventory items
-    set slot 0 of metadata tag "WAYSTONE_RENAME" of {_player} to green glass pane named "Hernoemen" with lore "Klik om te hernoemen"
+    set slot 0 of metadata tag "WAYSTONE_RENAME" of {_player} to green glass pane named "&fHernoemen" with lore "Klik om te hernoemen"
     set slot 1 of metadata tag "WAYSTONE_RENAME" of {_player} to tall grass
     set slot 2 of metadata tag "WAYSTONE_RENAME" of {_player} to tall grass
     set slot 3 of metadata tag "WAYSTONE_RENAME" of {_player} to tall grass
-    set slot 4 of metadata tag "WAYSTONE_RENAME" of {_player} to ender pearl named "&f%{waystone::location::%{_loc}%}%" with lore "Klik accepteren om de waystone te hernoemen" and "%{_location}%"
+    set slot 4 of metadata tag "WAYSTONE_RENAME" of {_player} to ender pearl named "&f%{waystone::location::%{_loc}%}%" with lore "Klik accepteren om de waystone te hernoemen"
     set slot 5 of metadata tag "WAYSTONE_RENAME" of {_player} to tall grass
     set slot 6 of metadata tag "WAYSTONE_RENAME" of {_player} to tall grass
     set slot 7 of metadata tag "WAYSTONE_RENAME" of {_player} to tall grass
-    set slot 8 of metadata tag "WAYSTONE_RENAME" of {_player} to red glass pane named "Annuleren"
+    set slot 8 of metadata tag "WAYSTONE_RENAME" of {_player} to red glass pane named "&fAnnuleren"
 
     # open inventory
     open metadata tag "WAYSTONE_RENAME" of {_player} to {_player}
@@ -274,8 +274,8 @@ on chat:
 command /waystonedebug:
     permission: group.user
     trigger:
-        send "&8NWarps:" to player
-        loop {waystone::warp::*}:
+        send "&8Owner:" to player
+        loop {waystone::owner::*}:
             send "%loop-index%: %loop-value%" to player
         send "&8Names:" to player
         loop {waystone::name::*}:
