@@ -1,8 +1,8 @@
 on first join:
     serverWarning(player, "Je kunt nog niet bouwen")
-    serverMessage(player, "Vraag een trusted, staff of admin voor toestemming")
+    serverMessage(player, "Vraag een &6trusted&7, &5staff&7 of &cadmin&7 voor toestemming")
 
-    set the join message to "&6Server &4>>&8 Let's welcome %player%"
+    set the join message to "&6Server &4>>&9 Laten we &7%player%&9 welkom heten!"
 
 
 on join:
@@ -11,13 +11,24 @@ on join:
     #set the join message to "&4>>&7 Oh look, &6%player%&7 joined! :)"
     message "&6Server &4>> &7Welkom terug, je kunt hulp krijgen in &f/help"
     if player has permission "group.admin":
-        set the join message to "&6Server &4>>&8 Oh look, &c%player%&8 joined! :)"
+        set the join message to "&6Server &4>>&9 Oh kijk, &c%player%&9 is terug! :)"
+    else if player has permission "group.staff":
+        set the join message to "&6Server &4>>&9 Oh kijk, &5%player%&9 is terug! :)"
     else if player has permission "group.trusted":
-        set the join message to "&6Server &4>>&8 Oh look, &6%player%&8 joined! :)"
+        set the join message to "&6Server &4>>&9 Oh kijk, &6%player%&9 is terug! :)"
     else if player has permission "group.user":
-        set the join message to "&6Server &4>>&8 Oh look, &3%player%&8 joined! :)"
+        set the join message to "&6Server &4>>&9 Oh kijk, &3%player%&9 is terug! :)"
     else:
-        set the join message to "&6Server &4>>&8 Oh look, &7%player%&8 joined! :)"
+        set the join message to "&6Server &4>>&9 Oh kijk, &7%player%&9 is terug! :)"
 
 on quit:
-    set the quit message to "Oh no, %player% left! :("
+    if player has permission "group.admin":
+        set the quit message to "&6Server &4>>&9 Oh nee, &c%player%&9 is weg gegaan! :("
+    else if player has permission "group.staff":
+        set the quit message to "&6Server &4>>&9 Oh nee, &5%player%&9 is weg gegaan! :("
+    else if player has permission "group.trusted":
+        set the quit message to "&6Server &4>>&9 Oh nee, &6%player%&9 is weg gegaan! :("
+    else if player has permission "group.user":
+        set the quit message to "&6Server &4>>&9 Oh nee, &3%player%&9 is weg gegaan! :("
+    else:
+        set the quit message to "&6Server &4>>&9 Oh nee, &7%player%&9 is weg gegaan! :("
