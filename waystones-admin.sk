@@ -53,8 +53,8 @@ function waystoneEditGUI(player: player, location: text):
     set slot 4 of metadata tag "WAYSTONE_ADMIN_EDIT" of {_player} to ender pearl named "&f%{waystone::location::%{_loc}%}%" with lore "Bezig met wijzigen van '%{waystone::location::%{_loc}%}%'" and "&8Eigenaar: &3%{_owner}%"
     set slot 5 of metadata tag "WAYSTONE_ADMIN_EDIT" of {_player} to tall grass
     set slot 6 of metadata tag "WAYSTONE_ADMIN_EDIT" of {_player} to tall grass
-    set slot 7 of metadata tag "WAYSTONE_ADMIN_EDIT" of {_player} to orange glass pane named "&fTerug"
-    set slot 8 of metadata tag "WAYSTONE_ADMIN_EDIT" of {_player} to red glass pane named "&fAnnuleren"
+    set slot 7 of metadata tag "WAYSTONE_ADMIN_EDIT" of {_player} to orange stained glass pane named "&fTerug"
+    set slot 8 of metadata tag "WAYSTONE_ADMIN_EDIT" of {_player} to red stained glass pane named "&fAnnuleren"
 
     # open inventory
     open metadata tag "WAYSTONE_ADMIN_EDIT" of {_player} to {_player}

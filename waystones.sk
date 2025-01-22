@@ -65,7 +65,7 @@ function waystoneItemGUI(player:player, item: item, location: location):
     set {_loc} to "%{_location}%"
     
     # Set inventory items
-    set slot 0 of metadata tag "WAYSTONE_ITEM_CONFIRM" of {_player} to green glass pane named "&fAccepteren" with lore "Klik om deze item te gebruiken"
+    set slot 0 of metadata tag "WAYSTONE_ITEM_CONFIRM" of {_player} to green stained glass pane named "&fAccepteren" with lore "Klik om deze item te gebruiken"
     set slot 1 of metadata tag "WAYSTONE_ITEM_CONFIRM" of {_player} to tall grass
     set slot 2 of metadata tag "WAYSTONE_ITEM_CONFIRM" of {_player} to tall grass
     set slot 3 of metadata tag "WAYSTONE_ITEM_CONFIRM" of {_player} to tall grass
@@ -73,7 +73,7 @@ function waystoneItemGUI(player:player, item: item, location: location):
     set slot 5 of metadata tag "WAYSTONE_ITEM_CONFIRM" of {_player} to tall grass
     set slot 6 of metadata tag "WAYSTONE_ITEM_CONFIRM" of {_player} to tall grass
     set slot 7 of metadata tag "WAYSTONE_ITEM_CONFIRM" of {_player} to tall grass
-    set slot 8 of metadata tag "WAYSTONE_ITEM_CONFIRM" of {_player} to red glass pane named "&fAnnuleren"
+    set slot 8 of metadata tag "WAYSTONE_ITEM_CONFIRM" of {_player} to red stained glass pane named "&fAnnuleren"
 
     # open inventory
     open metadata tag "WAYSTONE_ITEM_CONFIRM" of {_player} to {_player}
@@ -84,7 +84,7 @@ function waystoneRenameGUI(player: player, location: location):
     set {_loc} to "%{_location}%"
     
     # Set inventory items
-    set slot 0 of metadata tag "WAYSTONE_RENAME" of {_player} to green glass pane named "&fHernoemen" with lore "Klik om te hernoemen"
+    set slot 0 of metadata tag "WAYSTONE_RENAME" of {_player} to green stained glass pane named "&fHernoemen" with lore "Klik om te hernoemen"
     set slot 1 of metadata tag "WAYSTONE_RENAME" of {_player} to tall grass
     set slot 2 of metadata tag "WAYSTONE_RENAME" of {_player} to tall grass
     set slot 3 of metadata tag "WAYSTONE_RENAME" of {_player} to tall grass
@@ -92,7 +92,7 @@ function waystoneRenameGUI(player: player, location: location):
     set slot 5 of metadata tag "WAYSTONE_RENAME" of {_player} to tall grass
     set slot 6 of metadata tag "WAYSTONE_RENAME" of {_player} to tall grass
     set slot 7 of metadata tag "WAYSTONE_RENAME" of {_player} to tall grass
-    set slot 8 of metadata tag "WAYSTONE_RENAME" of {_player} to red glass pane named "&fAnnuleren"
+    set slot 8 of metadata tag "WAYSTONE_RENAME" of {_player} to red stained glass pane named "&fAnnuleren"
 
     # open inventory
     open metadata tag "WAYSTONE_RENAME" of {_player} to {_player}
