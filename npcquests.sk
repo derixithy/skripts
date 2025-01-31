@@ -116,9 +116,9 @@ command /npcClick <text> <text = "right">:
                 set {_buyLogs} to getQuestStatus(player, "frank", "frankBuyLogs")
 
                 if {_buyLogs} is "Locked":
-                    unlockQuest(player, "special", "frankBuyLogs")
+                    unlockQuest(player, "frank", "frankBuyLogs")
                     runDialogAndReminder(player, "frank", "frank", "opening", {frankBuyLogs})
-                    execute console command "/givecoin %player% 4"
+                    #execute console command "/givecoin %player% 4"
 
                 else if {_buyLogs} is "Unlocked":
                     runDialogAndReminder(player, "frank", "frank", "buyLogs", {frankBuyLogs})
