@@ -1,0 +1,233 @@
+command /atm:
+    permission: group.user
+    trigger:
+        bankGUI(player)
+
+command /givecoin <player> [<text = 1>]:
+    permission: group.admin
+    trigger:
+        set {_times} to arg-text parsed as integer
+        loop {_times} times:
+            give stick named "&f€1 Euro" with custom model data 10028 to arg-player
+
+command /givebill <player> [<text = 1>]:
+    permission: group.admin
+    trigger:
+        set {_times} to arg-text parsed as integer
+        loop {_times} times:
+            give stick named "&f€10 Euro" with custom model data 10029 to arg-player
+
+
+
+function bankSellCoins(player:player, amount:number):
+    set {_coins} to amount of stick named "&f€1 Euro" with custom model data 10028 in {_player}'s inventory
+    if {_coins} >= {_amount}:
+        execute console command "/eco add %{_player}% %{_amount}%"
+        remove {_amount} of stick named "&f€1 Euro" with custom model data 10028 from {_player}'s inventory
+    else:
+        send "Je hebt niet genoeg Euro munten in je inventaris" to {_player}
+
+function bankBuyCoins(player:player, amount:number):
+    set {_money} to placeholder "vault_eco_balance_fixed" from {_player} parsed as number
+    if {_money} >= {_amount}:
+        execute console command "/eco withdraw %{_player}% %{_amount}%"
+        #give {_amount} of stick named "&f€1 Euro" with custom model data 10028 to {_player} # strange bug
+        loop {_amount} times:
+            give stick named "&f€1 Euro" with custom model data 10028 to {_player}
+    else:
+        send "Je hebt niet genoeg geld op je rekening: %{_money}%" to {_player}
+
+
+
+function bankSellBills(player:player, amount:number):
+    set {_bills} to amount of stick named "&f€10 Euro" with custom model data 10029 in {_player}'s inventory
+    if {_bills} >= {_amount}:
+        execute console command "/eco add %{_player}% %{_amount}%"
+        remove {_amount} of stick named "&f€10 Euro" with custom model data 10029 from {_player}'s inventory
+    else:
+        send "Je hebt niet genoeg Euro munten in je inventaris" to {_player}
+
+function bankBuyBills(player:player, amount:number):
+    set {_money} to placeholder "vault_eco_balance_fixed" from {_player} parsed as number
+    if {_money} >= {_amount}:
+        execute console command "/eco withdraw %{_player}% %{_amount}%"
+        #give {_amount} of stick named "&f€1 Euro" with custom model data 10028 to {_player} # strange bug
+        loop {_amount} times:
+            give stick named "&f€10 Euro" with custom model data 10029 to {_player}
+    else:
+        send "Je hebt niet genoeg geld op je rekening: %{_money}%" to {_player}
+        
+
+
+
+function bankGUI(player:player):
+    set {_money} to placeholder "vault_eco_balance" from {_player}
+    set {_moneyFixed} to placeholder "vault_eco_balance_fixed" from {_player}
+    set metadata tag "BANK_GUI" of {_player} to chest inventory with 3 rows named "Bank"
+    set slot 0 of metadata tag "BANK_GUI" of {_player} to tall grass
+    set slot 1 of metadata tag "BANK_GUI" of {_player} to tall grass
+    set slot 2 of metadata tag "BANK_GUI" of {_player} to tall grass
+    set slot 3 of metadata tag "BANK_GUI" of {_player} to tall grass
+    set slot 4 of metadata tag "BANK_GUI" of {_player} to tall grass
+    set slot 5 of metadata tag "BANK_GUI" of {_player} to tall grass
+    set slot 6 of metadata tag "BANK_GUI" of {_player} to tall grass
+    set slot 7 of metadata tag "BANK_GUI" of {_player} to tall grass
+    set slot 8 of metadata tag "BANK_GUI" of {_player} to tall grass
+    
+    set slot 9 of metadata tag "BANK_GUI" of {_player} to tall grass
+    set slot 10 of metadata tag "BANK_GUI" of {_player} to tall grass
+    set slot 11 of metadata tag "BANK_GUI" of {_player} to stick named "&f€1,- Munten kopen" with custom model data 10028
+    set slot 12 of metadata tag "BANK_GUI" of {_player} to tall grass
+    set slot 13 of metadata tag "BANK_GUI" of {_player} to tall grass
+    set slot 14 of metadata tag "BANK_GUI" of {_player} to tall grass
+    set slot 15 of metadata tag "BANK_GUI" of {_player} to stick named "&f€10,- Biljetten kopen" with custom model data 10029
+    set slot 16 of metadata tag "BANK_GUI" of {_player} to tall grass
+    set slot 17 of metadata tag "BANK_GUI" of {_player} to tall grass
+
+    set slot 18 of metadata tag "BANK_GUI" of {_player} to paper named "&fOude geld omzetten" with custom model data 10040
+    set slot 19 of metadata tag "BANK_GUI" of {_player} to tall grass
+    set slot 20 of metadata tag "BANK_GUI" of {_player} to tall grass
+    set slot 21 of metadata tag "BANK_GUI" of {_player} to tall grass
+    set slot 23 of metadata tag "BANK_GUI" of {_player} to tall grass
+    set slot 24 of metadata tag "BANK_GUI" of {_player} to tall grass
+    set slot 25 of metadata tag "BANK_GUI" of {_player} to tall grass
+    set slot 26 of metadata tag "BANK_GUI" of {_player} to tall grass
+    set slot 22 of metadata tag "BANK_GUI" of {_player} to {_player}'s skull named "&f%{_player}'s name%" with lore "&5Rekening: &7€%{_money}%"
+ 
+    open metadata tag "BANK_GUI" of {_player} to {_player}
+
+
+function bankCoinsGUI(player:player):
+    set {_money} to placeholder "vault_eco_balance" from {_player}
+    set {_moneyFixed} to placeholder "vault_eco_balance_fixed" from {_player}
+    set metadata tag "BANK_COINS_GUI" of {_player} to chest inventory with 3 rows named "Bank"
+    set slot 0 of metadata tag "BANK_COINS_GUI" of {_player} to tall grass
+    set slot 1 of metadata tag "BANK_COINS_GUI" of {_player} to tall grass
+    set slot 2 of metadata tag "BANK_COINS_GUI" of {_player} to tall grass
+    set slot 3 of metadata tag "BANK_COINS_GUI" of {_player} to tall grass
+    set slot 4 of metadata tag "BANK_COINS_GUI" of {_player} to tall grass
+    set slot 5 of metadata tag "BANK_COINS_GUI" of {_player} to tall grass
+    set slot 6 of metadata tag "BANK_COINS_GUI" of {_player} to tall grass
+    set slot 7 of metadata tag "BANK_COINS_GUI" of {_player} to tall grass
+    set slot 8 of metadata tag "BANK_COINS_GUI" of {_player} to tall grass
+    
+    set slot 12 of metadata tag "BANK_COINS_GUI" of {_player} to tall grass
+    set slot 14 of metadata tag "BANK_COINS_GUI" of {_player} to tall grass
+    
+    set slot 9 of metadata tag "BANK_COINS_GUI" of {_player} to orange stained glass pane named "&f1 Munt storten" with lore "&3Zet het geld op je rekening"
+    set slot 10 of metadata tag "BANK_COINS_GUI" of {_player} to orange stained glass pane named "&f10 Munten storten" with lore "&3Zet het geld op je rekening"
+    set slot 11 of metadata tag "BANK_COINS_GUI" of {_player} to orange stained glass pane named "&f64 Munten storten" with lore "&3Zet het geld op je rekening"
+    set slot 13 of metadata tag "BANK_COINS_GUI" of {_player} to stick named "&f€1 Euro" with custom model data 10028
+    set slot 15 of metadata tag "BANK_COINS_GUI" of {_player} to green stained glass pane named "&f64 Munt kopen" with lore "&3Haalt het geld van je rekening"
+    set slot 16 of metadata tag "BANK_COINS_GUI" of {_player} to green stained glass pane named "&f10 Munten kopen" with lore "&3Haalt het geld van je rekening"
+    set slot 17 of metadata tag "BANK_COINS_GUI" of {_player} to green stained glass pane named "&f1 Munten kopen" with lore "&3Haalt het geld van je rekening"
+
+    set slot 18 of metadata tag "BANK_COINS_GUI" of {_player} to paper named "&fTerug" with custom model data 10033
+    set slot 19 of metadata tag "BANK_COINS_GUI" of {_player} to tall grass
+    set slot 20 of metadata tag "BANK_COINS_GUI" of {_player} to tall grass
+    set slot 21 of metadata tag "BANK_COINS_GUI" of {_player} to tall grass
+    set slot 23 of metadata tag "BANK_COINS_GUI" of {_player} to tall grass
+    set slot 24 of metadata tag "BANK_COINS_GUI" of {_player} to tall grass
+    set slot 25 of metadata tag "BANK_COINS_GUI" of {_player} to tall grass
+    set slot 26 of metadata tag "BANK_COINS_GUI" of {_player} to stick named "&fBiljetten kopen" with custom model data 10029
+    set slot 22 of metadata tag "BANK_COINS_GUI" of {_player} to {_player}'s skull named "&f%{_player}'s name%" with lore "&5Rekening: &7€%{_money}%"
+ 
+    open metadata tag "BANK_COINS_GUI" of {_player} to {_player}
+
+
+
+function bankBillsGUI(player:player):
+    set {_money} to placeholder "vault_eco_balance" from {_player}
+    set {_moneyFixed} to placeholder "vault_eco_balance_fixed" from {_player}
+    set metadata tag "BANK_BILLS_GUI" of {_player} to chest inventory with 3 rows named "Bank"
+    set slot 0 of metadata tag "BANK_BILLS_GUI" of {_player} to tall grass
+    set slot 1 of metadata tag "BANK_BILLS_GUI" of {_player} to tall grass
+    set slot 2 of metadata tag "BANK_BILLS_GUI" of {_player} to tall grass
+    set slot 3 of metadata tag "BANK_BILLS_GUI" of {_player} to tall grass
+    set slot 4 of metadata tag "BANK_BILLS_GUI" of {_player} to tall grass
+    set slot 5 of metadata tag "BANK_BILLS_GUI" of {_player} to tall grass
+    set slot 6 of metadata tag "BANK_BILLS_GUI" of {_player} to tall grass
+    set slot 7 of metadata tag "BANK_BILLS_GUI" of {_player} to tall grass
+    set slot 8 of metadata tag "BANK_BILLS_GUI" of {_player} to tall grass
+    
+    set slot 12 of metadata tag "BANK_BILLS_GUI" of {_player} to tall grass
+    set slot 14 of metadata tag "BANK_BILLS_GUI" of {_player} to tall grass
+    
+    set slot 9 of metadata tag "BANK_BILLS_GUI" of {_player} to orange stained glass pane named "&f1 Biljet storten" with lore "&3Zet het geld op je rekening"
+    set slot 10 of metadata tag "BANK_BILLS_GUI" of {_player} to orange stained glass pane named "&f10 Biljetten storten" with lore "&3Zet het geld op je rekening"
+    set slot 11 of metadata tag "BANK_BILLS_GUI" of {_player} to orange stained glass pane named "&f64 Biljetten storten" with lore "&3Zet het geld op je rekening"
+    set slot 13 of metadata tag "BANK_BILLS_GUI" of {_player} to stick named "&f€10 Euro" with custom model data 10029
+    set slot 15 of metadata tag "BANK_BILLS_GUI" of {_player} to green stained glass pane named "&f64 Biljetten kopen" with lore "&3Haalt het geld van je rekening"
+    set slot 16 of metadata tag "BANK_BILLS_GUI" of {_player} to green stained glass pane named "&f10 Biljetten kopen" with lore "&3Haalt het geld van je rekening"
+    set slot 17 of metadata tag "BANK_BILLS_GUI" of {_player} to green stained glass pane named "&f1 Biljet kopen" with lore "&3Haalt het geld van je rekening"
+
+    set slot 18 of metadata tag "BANK_BILLS_GUI" of {_player} to paper named "&fTerug" with custom model data 10033
+    set slot 19 of metadata tag "BANK_BILLS_GUI" of {_player} to tall grass
+    set slot 20 of metadata tag "BANK_BILLS_GUI" of {_player} to tall grass
+    set slot 21 of metadata tag "BANK_BILLS_GUI" of {_player} to tall grass
+    set slot 23 of metadata tag "BANK_BILLS_GUI" of {_player} to tall grass
+    set slot 24 of metadata tag "BANK_BILLS_GUI" of {_player} to tall grass
+    set slot 25 of metadata tag "BANK_BILLS_GUI" of {_player} to tall grass
+    set slot 26 of metadata tag "BANK_BILLS_GUI" of {_player} to stick named "&fMunten kopen" with custom model data 10028
+    set slot 22 of metadata tag "BANK_BILLS_GUI" of {_player} to {_player}'s skull named "&f%{_player}'s name%" with lore "&5Rekening: &7€%{_money}%"
+ 
+    open metadata tag "BANK_BILLS_GUI" of {_player} to {_player}
+
+on inventory click:
+    event-inventory != player' inventory:
+
+        event-inventory = (metadata tag "BANK_GUI" of player):
+            cancel event
+            event-slot != air:
+                if index of event-slot = 18:
+                    execute console command "/shopkeeper remote 13 %player%"
+                else if index of event-slot = 11:
+                    bankCoinsGUI(player)
+                else if index of event-slot = 15:
+                    bankBillsGUI(player)
+
+        event-inventory = (metadata tag "BANK_COINS_GUI" of player):
+            cancel event
+            event-slot != air:
+                if index of event-slot = 18:
+                    bankGUI(player)
+                else if index of event-slot = 9:
+                    bankSellCoins(player, 1)
+                else if index of event-slot = 10:
+                    bankSellCoins(player, 10)
+                else if index of event-slot = 11:
+                    bankSellCoins(player, 64)
+                else if index of event-slot = 15:
+                    bankBuyCoins(player, 64)
+                else if index of event-slot = 16:
+                    bankBuyCoins(player, 10)
+                else if index of event-slot = 17:
+                    bankBuyCoins(player, 1)
+                else if index of event-slot = 26:
+                    bankBillsGUI(player)
+
+        event-inventory = (metadata tag "BANK_BILLS_GUI" of player):
+            cancel event
+            event-slot != air:
+                if index of event-slot = 18:
+                    bankGUI(player)
+                else if index of event-slot = 9:
+                    bankSellBills(player, 1)
+                else if index of event-slot = 10:
+                    bankSellBills(player, 10)
+                else if index of event-slot = 11:
+                    bankSellBills(player, 64)
+                else if index of event-slot = 15:
+                    bankBuyBills(player, 64)
+                else if index of event-slot = 16:
+                    bankBuyBills(player, 10)
+                else if index of event-slot = 17:
+                    bankBuyBills(player, 1)
+                else if index of event-slot = 26:
+                    bankCoinsGUI(player)
+
+
+
+
+
+

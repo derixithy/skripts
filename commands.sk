@@ -39,10 +39,11 @@ command /menu [<text>] [<player>]:
         else:
             make player execute command "/cp menu"
 
+
 command /wclear:
     permission: group.user
     trigger:
-        execute console command "/weather clear"
+        set weather to clear
         serverMessage(all players, "Bui uitgeschakeld door: %player%")
 
 
@@ -58,6 +59,12 @@ command /nightvision [<text>]:
         else:
             execute console command "/effect give %player% minecraft:night_vision 300"
             serverMessage(player, "Nachtvisie aan gezet, gebruik &f/nightvision off&7 om uit te schakelen")
+
+
+command /worldtime: #The command
+    description: Tells you the time of the world #Will show up in the help menu
+    trigger: #What it executes
+        send "%time%" to player
 
 
 # ADMIN
@@ -80,4 +87,7 @@ command /sudo [<player>] [<text>]:
         else:
             send "&cYou must specify a player!" to player
 
-
+command /component:
+    permission: group.admin
+    trigger:
+        execute player command "/data get entity %player% SelectedItem.components"

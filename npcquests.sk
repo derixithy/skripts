@@ -1,0 +1,294 @@
+variables:
+    {frankBuyLogs} = "Koop een stack Oak Logs van een handelaar"
+    {frankBringLogs} = "Breng een stack Oak Logs naar frank"
+    {talkWithGror} = "Praat met Gror"
+    {talkWithGimli} = "Praat met Gimli"
+    {waitGror} = "Breng Gror de gebraden kip"
+    {waitGimli} = "Breng Gimi een diamanten pickaxe"
+
+
+function getQuestStatus(player: player, pool: text, questID: text) :: text:
+    set {_status} to placeholder "aqakt_queststat_%{_pool}%_%{_questID}%" from {_player}
+
+    if {_status} is "undefined":
+        serverError({_player}, "QuestID: %{_questID}% niet gevonden")
+
+    return {_status}
+
+
+function runDialog(player: player, pool: text, npc: text, action: text):
+    execute console command "/bd dialogue quest_%{_pool}%_%{_npc}%_%{_action}% %{_player}%"
+
+
+function remindTask(player: player, text: text):
+    send "&3Taak: &8%{_text}%" to {_player}
+
+
+function runDialogAndReminder(player: player, pool: text, npc: text, action: text, reminder: text):
+    runDialog({_player}, {_pool}, {_npc}, {_action})
+    remindTask({_player}, {_reminder})
+
+
+function finishedQuest(player: player, text: text):
+    send "&3Klaar: &2%{_text}%" to {_player}
+
+
+function unlockQuest(player: player, pool: text, quest: text, silent: boolean = true):
+    set {_notify} to "silent"
+    if {_silent} is false:
+        set {_notify} to ""
+
+    execute console command "/quests unlock %{_player}% %{_pool}% %{_quest}% %{_notify}%"
+
+
+function completeQuest(player: player, pool: text, quest: text, silent: boolean = true):
+    set {_notify} to "silent"
+    if {_silent} is false:
+        set {_notify} to ""
+
+    execute console command "/quests complete %{_player}% %{_pool}% %{_quest}% %{_notify}%"
+
+
+# Does not work >>>>>
+function checkItemInHand(player: player, item: item) :: boolean:
+    set {_held} to {player}'s tool
+    if {_held} is {_item}:
+        return true
+    else:
+        return false
+# <<<<< Does not work
+
+
+function removeItemFromHand(player: player, item: item):
+    if {_item} is an item:
+        remove {_item} from {_player}'s tool
+    else:
+        serverError({_player}, "Kon {_amount} {_item} niet uit de hand halen")
+
+
+function checkItemInInventory(player: player, item: item) :: boolean:
+    if {_player} has {_item} in inventory:
+        return true
+    else:
+        return false
+
+
+function removeItemFromInventory(player: player, item: item):
+    if {_item} is an item:
+        remove {_item} from {_player}'s inventory
+    else:
+        serverError({_player}, "Kon {_amount} {_item} niet uit de hand halen")
+    
+function playASound(player: player, sound: text, volume: number = 100, pitch: number = 1):
+    play sound {_sound} with volume {_volume} with pitch {_pitch} at {_player} for {_player}
+
+function playPling(player: player):
+    playASound({_player}, "ENTITY_EXPERIENCE_ORB_PICKUP")
+
+
+command /npcClick <text> <text = "right">:
+    permission: group.console
+    usage: "/npcClick <npc name> <left|right|any>"
+    trigger:
+        set {_npc} to arg-1
+        set {_click} to arg-2
+
+
+
+        if arg-1 is "open":
+            if player has permission "group.admin":
+                execute console command "/quest open %player% %{arg-2}%"
+        
+        # Special
+        ############################################################################
+
+        # Frank
+        else if {_npc} is "frank":
+            if {_click} is "right" or "any":
+                if getQuestStatus(player, "frank", "frankBringLogs") is "Completed":
+                    runDialog(player, "frank", "frank", "completed")
+                    exit
+
+                if getQuestStatus(player, "frank", "findFrank") is "Locked":
+                    completeQuest(player, "frank", "findFrank")
+
+
+                set {_buyLogs} to getQuestStatus(player, "frank", "frankBuyLogs")
+
+                if {_buyLogs} is "Locked":
+                    unlockQuest(player, "special", "frankBuyLogs")
+                    runDialogAndReminder(player, "frank", "frank", "opening")
+                    execute console command "/givecoin %player% 4"
+
+                else if {_buyLogs} is "Unlocked":
+                    runDialogAndReminder(player, "frank", "frank", "buyLogs", {frankBuyLogs})
+
+                else if {_buyLogs} is "Completed":
+                    set {_bringLogs} to getQuestStatus(player, "frank", "frankBringLogs")
+
+                    if {_bringLogs} is "Unlocked":
+                        set {_item} to 64 oak log
+
+                        if checkItemInInventory(player, {_item}) is true:
+                            runDialog(player, "frank", "frank", "finished")
+                            removeItemFromInventory(player, {_item})
+                            completeQuest(player, "frank", "frankBringLogs", false)
+                        
+                        else:
+                            runDialogAndReminder(player, "frank", "frank", "bringLogs", {frankBringLogs})
+            
+                else:
+                    send "Er ging iets fout" to player
+
+
+
+        # Dwergen
+        ############################################################################
+
+
+        else if {_npc} is "alrik":
+            if {_click} is "right" or "any":
+
+                # Check last dwarf quest
+                if getQuestStatus(player, "dwarves", "gimliBringDiamondPickaxe") is "Completed":
+                    runDialog(player, "dwarves", "alrik", "completed")
+                    exit # No need to go further
+
+
+                set {_talkWithGror} to getQuestStatus(player, "dwarves", "alrikTalkWithGror")
+
+                # Unlock quests before proceding
+                if {_talkWithGror} is "Locked":
+                    unlockQuest(player, "dwarves", "alrikTalkWithGror")
+                    runDialogAndReminder(player, "dwarves", "alrik", "locked", {talkWithGror})
+
+
+                if {_talkWithGror} is "Unlocked":
+                    runDialogAndReminder(player, "dwarves", "alrik", "talkWithGror", {talkWithGror})
+
+
+                else if {_talkWithGror} is "Completed":
+                    set {_talkWithGimli} to getQuestStatus(player, "dwarves", "alrikTalkWithGimli")
+
+                    # Quest with Gror is still open
+                    if {_talkWithGimli} is "Locked":
+                        set {_grorCookChicken} to getQuestStatus(player, "dwarves", "grorCookChicken")
+
+                        if {_grorCookChicken} is "Locked":
+                            runDialog(player, "dwarves", "alrik", "locked")
+
+                        else if {_grorCookChicken} is "Unlocked":
+                            runDialogAndReminder(player, "dwarves", "alrik", "waitGror", {waitGror})
+
+                        else if {_grorCookChicken} is "Completed":
+                            set {_grorBringChicken} to getQuestStatus(player, "dwarves", "grorBringChicken")
+
+                            if {_grorBringChicken} is "Unlocked":
+                                runDialogAndReminder(player, "dwarves", "alrik", "waitGror", {waitGror})
+
+                            else:
+                                runDialogAndReminder(player, "dwarves", "alrik", "waitGimli", {waitGimli})
+                                unlockQuest(player, "dwarves", "alrikTalkWithGimli")
+                    
+                    # Quest with Gror is done
+                    else if {_talkWithGimli} is "Unlocked":
+                        runDialogAndReminder(player, "dwarves", "alrik", "talkWithGimli", {talkWithGimli})
+                    
+                    # Quest with Gimli is still open
+                    else if {_talkWithGimli} is "Completed":
+                        runDialogAndReminder(player, "dwarves", "alrik", "waitGimli", {waitGimli})
+
+
+                else:
+                    runDialog(player, "dwarves", "alrik", "completed")
+
+
+
+
+        else if {_npc} is "gror":
+            if {_click} is "right" or "any":
+                # Check if quests are done
+                if getQuestStatus(player, "dwarves", "grorBringChicken") is "Completed":
+                    runDialog(player, "dwarves", "gror", "completed")
+                    exit
+                
+                if getQuestStatus(player, "dwarves", "findAlrik") is "Completed":
+                    if getQuestStatus(player, "dwarves", "grorCookChicken") is "Locked":
+                        runDialogAndReminder(player, "dwarves", "gror", "unlocking", {waitGror})
+                        unlockQuest(player, "dwarves", "grorCookChicken")
+                        give player 64 of chicken
+                        give player 8 of coal
+                        playPling(player)
+
+
+                set {_cookChicken} to getQuestStatus(player, "dwarves", "grorCookChicken")
+
+                if {_cookChicken} is "Locked":
+                    runDialog(player, "dwarves", "gror", "locked")
+
+                else if {_cookChicken} is "Unlocked":
+                    runDialog(player, "dwarves", "gror", "wait")
+
+                else if {_cookChicken} is "Completed":
+                    set {_bringChicken} to getQuestStatus(player, "dwarves", "grorBringChicken")
+
+                    if {_bringChicken} is "Locked":
+                        unlockQuest(player, "dwarves", "grorBringChicken")
+                        set {_bringChicken} to "Unlocked"
+                    
+                    if {_bringChicken} is "Unlocked":
+                        set {_item} to 64 of cooked chicken items
+
+                        if checkItemInInventory(player, {_item}) is true:
+                            removeItemFromInventory(player, {_item})
+                            completeQuest(player, "dwarves", "grorBringChicken")
+                            runDialog(player, "dwarves", "gror", "finished")
+                            playPling(player)
+                        
+                        else:
+                            runDialogAndReminder(player, "dwarves", "gror", "wait", {waitGror})
+                else:
+                    runDialog(player, "dwarves", "gror", "completed")
+
+
+
+
+        else if {_npc} is "gimli":
+            if {_click} is "right" or "any":
+                set {_quest} to getQuestStatus(player, "dwarves", "gimliBringDiamondPickaxe")
+
+                if {_quest} is "Locked":
+                    if getQuestStatus(player, "dwarves", "talkWithGimli") is "Unlocked":
+                        runDialog(player, "dwarves", "gimli", "opening")
+                        unlockQuest(player, "dwarves", "gimliBringDiamondPickaxe")
+                    else:
+                        runDialog(player, "dwarves", "gimli", "locked")
+                
+                if {_quest} is "Unlocked":
+                    set {_item} to diamond pickaxe item
+                    if checkItemInInventory(player, {_item}) is true:
+                        removeItemFromInventory(player, {_item})
+                        completeQuest(player, "dwarves", "gimliBringDiamondPickaxe")
+                        runDialog(player, "dwarves", "gimli", "finished")
+                        finishedQuest(player, "Je hebt de dwergen quest afgemaakt!")
+
+                    
+                    else:
+                        runDialogAndReminder(player, "dwarves", "gimli", "wait", {waitGimli})
+                
+                else:
+                    runDialog(player, "dwarves", "gimli", "completed")
+
+
+
+        else if {_npc} is "fjola":
+            if {_click} is "right" or "any":
+                set {_random} to a random integer between 1 and 3
+                runDialog(player, "dwarves", "fjola", "interact%{_random}%")
+
+
+
+        else if {_npc} is "nori":
+            if {_click} is "right" or "any":
+                set {_random} to a random integer between 1 and 3
+                runDialog(player, "dwarves", "nori", "interact%{_random}%")

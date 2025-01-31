@@ -1,0 +1,143 @@
+
+command /questmanager <text>:
+    permission: group.console
+    trigger:
+        if arg-text is "open":
+            execute console command "/quest open %player% special"
+        
+        # Special
+        ############################################################################
+
+        # Frank
+        else if arg-text is "frank":
+            set {_quest} to placeholder "aqakt_queststat_special_frank" from player
+            if "%{_quest}%" is "Locked":
+                execute console command "/bd dialogue quest_special_frank_wait %player%"
+            else if {_quest} is "Unlocked":
+                if the amount of oak log in player's inventory >= 64:
+                    execute console command "/bd dialogue quest_special_frank_take_items %player%"
+                    remove 64 of oak log from player's inventory
+                    execute console command "/quests complete %player% special frank"
+                else:
+                    execute console command "/bd dialogue quest_special_frank_no_items %player%"
+            else if {_quest} is "Completed":
+                execute console command "/bd dialogue quest_special_frank_closed %player%"
+            else:
+                send "Er ging iets fout" to player
+
+
+
+        # Dwergen
+        ############################################################################
+
+        # Alrik
+        else if arg-text is "alrik":
+            set {_quest} to placeholder "aqakt_queststat_dwarves_alrik" from player
+            if "%{_quest}%" is "Locked":
+                execute console command "/bd dialogue quest_dwarves_alrik_start %player%"
+            else if {_quest} is "Unlocked":
+                # Smelt 64 chicken
+                set {_quest} to placeholder "aqakt_queststat_dwarves_grorA" from player
+                if {_quest} is "Unlocked":
+                    execute console command "/bd dialogue quest_dwarves_alrik_gror_open %player%"
+                else if {_quest} is "Completed":
+                    # Bring Gror 64 cooked chicken
+                    set {_quest} to placeholder "aqakt_queststat_dwarves_grorB" from player
+                    if {_quest} is "Unlocked":
+                        execute console command "/bd dialogue quest_dwarves_alrik_gror_open %player%"
+
+                    else: # Give Gimli a diamond pickaxe / grorB completed
+                        set {_quest} to placeholder "aqakt_queststat_dwarves_gimli" from player
+                        if {_quest} is "Locked":
+                            execute console command "/bd dialogue quest_dwarves_alrik_gimli_wait %player%" #!
+                        else if {_quest} is "Unlocked":
+                            execute console command "/bd dialogue quest_dwarves_alrik_gimli_open %player%" #!
+                        else:
+                            execute console command "/bd dialogue quest_dwarves_alrik_closed %player%" #!
+    
+    # Overnieuw >>>>
+                execute console command "/bd dialogue quest_dwarves_alrik_open %player%"
+                send "Taak: Kijk wat er aan de hand is met Gror" to player
+            else if {_quest} is "Completed":
+                # Smelt 64 chicken
+                set {_quest} to placeholder "aqakt_queststat_dwarves_grorA" from player
+                if {_quest} is "Unlocked":
+                    execute console command "/bd dialogue quest_dwarves_alrik_gror_open %player%"
+                else if {_quest} is "Completed":
+                    # Bring Gror 64 cooked chicken
+                    set {_quest} to placeholder "aqakt_queststat_dwarves_grorB" from player
+                    if {_quest} is "Unlocked":
+                        execute console command "/bd dialogue quest_dwarves_alrik_gror_open %player%"
+
+                    else: # Give Gimli a diamond pickaxe / grorB completed
+                        set {_quest} to placeholder "aqakt_queststat_dwarves_gimli" from player
+                        if {_quest} is "Locked":
+                            execute console command "/bd dialogue quest_dwarves_alrik_gimli_wait %player%" #!
+                        else if {_quest} is "Unlocked":
+                            execute console command "/bd dialogue quest_dwarves_alrik_gimli_open %player%" #!
+                        else:
+                            execute console command "/bd dialogue quest_dwarves_alrik_closed %player%" #!
+    # <<<< Overnieuw
+
+        # Gror
+        else if arg-text is "gror":
+            set {_quest} to placeholder "aqakt_queststat_dwarves_alrik" from player
+            if "%{_quest}%" is "Locked":
+                execute console command "/bd dialogue quest_dwarves_gror_wait %player%"
+            
+            # Smelt 64 chicken
+            else if {_quest} is "Unlocked":
+                set {_quest} to placeholder "aqakt_queststat_dwarves_grorA" from player
+                if "%{_quest}%" is "Locked":
+                    execute console command "/bd dialogue quest_dwarves_gror_open %player%"
+                    send "Taak: Bak de kip en breng ze naar Gror" to player
+                else if {_quest} is "Unlocked":
+                    execute console command "/bd dialogue quest_dwarves_gror_cook_wait %player%"
+                    send "Taak: Bak de kip en breng ze naar Gror" to player
+                
+                # Bring gror cooked chicken
+                else if {_quest} is "Completed":
+                    set {_quest} to placeholder "aqakt_queststat_dwarves_grorB" from player
+                    if "%{_quest}%" is "Locked":
+                        send "Oeps er is iets mis gegaan" to player
+                    else if {_quest} is "Unlocked":
+                        if the amount of cooked chicken in player's inventory >= 64:
+                            remove 64 of cooked chicken from player's inventory
+                            execute console command "/bd dialogue quest_dwarves_gror_close %player%"
+                        else:
+                            execute console command "/bd dialogue quest_dwarves_gror_cook_wait %player%"
+                            send "Taak: Bak de kip en breng ze naar Gror" to player
+                    else if {_quest} is "Completed":
+                        execute console command "/bd dialogue quest_dwarves_gror_closed %player%"
+
+            else if {_quest} is "Completed":
+                execute console command "/bd dialogue quest_dwarves_gror_closed %player%" #random gesprek maken
+            else:
+                send "Er ging iets fout" to player
+        
+        # Gimli
+        else if arg-text is "gimli":
+            set {_quest} to placeholder "aqakt_queststat_dwarves_gimli" from player
+            if "%{_quest}%" is "Locked":
+                set {_quest} to placeholder "aqakt_queststat_dwarves_grorB" from player
+                if {_quest} is "Completed":
+                    execute console command "/bd dialogue quest_dwarves_gimli_open %player%"
+                    send "Taak: Geef Gimli een (unenchanted) diamond pickaxe"
+                else:
+                    execute console command "/bd dialogue quest_dwarves_gimli_wait %player%"
+            else if {_quest} is "Unlocked":
+                if the amount of diamond pickaxe in player's inventory >= 1:
+                    remove 1 of diamond pickaxe from player's inventory
+                    execute console command "/bd dialogue quest_dwarves_gimli_close %player%"
+                else:
+                    execute console command "/bd dialogue quest_dwarves_gimli_no_items %player%"
+                    send "Taak: Geef Gimli een (unenchanted) diamond pickaxe"
+            else:
+                send "Er ging iets fout" to player
+
+
+        # Onbekende identifier/npc
+        else:
+            send "Deze quest is niet goed opgezet, contacteer een admin" to player
+
+

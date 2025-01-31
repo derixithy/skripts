@@ -2,7 +2,7 @@
 # Skript functions
 #
 
-# Server messages
+# Server messages (old style)
 function serverMessage(players: players, msg: text):
     send "&6Server &4>>&7 %{_msg}%" to {_players::*}
 
@@ -14,3 +14,16 @@ function serverError(players: players, msg: text):
 
 function serverSuccess(players: players, msg: text):
     send "&6Server &4>>&2 %{_msg}%" to {_players::*}
+
+# Server messages - does not work
+function pnotice(players: players, from: text, message: text):
+    send "<gold>%{_from}% <dark_red>>><gray> %{_message}%" to {_players::*}
+
+function pwarning(players: players, from: text, message: text):
+    send "<gold>%{_from}% <dark_red>>><red> %{_message}%" to {_players::*}
+
+function perror(players: players, from: text, message: text):
+    send "<gold>%{_from}% <dark_red>>> %{_message}%" to {_players::*}
+
+function psuccess(players: players, from: text, message: text):
+    send "<gold>%{_from}% <dark_red>>><green> %{_message}%" to {_players::*}
