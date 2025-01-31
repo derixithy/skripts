@@ -86,8 +86,14 @@ function playPling(player: player):
     playASound({_player}, "ENTITY_EXPERIENCE_ORB_PICKUP")
 
 
-command /npcClick <text> <text = "right">:
+command /npcTask <player> <text>:
     permission: group.console
+    trigger:
+        remindTask(arg-player, arg-text)
+
+
+command /npcClick <text> <text = "right">:
+    permission: group.admin
     usage: "/npcClick <npc name> <left|right|any>"
     trigger:
         set {_npc} to arg-1
@@ -99,7 +105,7 @@ command /npcClick <text> <text = "right">:
             if player has permission "group.admin":
                 execute console command "/quest open %player% %{arg-2}%"
         
-        # Special
+        # Frank
         ############################################################################
 
         # Frank
@@ -116,9 +122,9 @@ command /npcClick <text> <text = "right">:
                 set {_buyLogs} to getQuestStatus(player, "frank", "frankBuyLogs")
 
                 if {_buyLogs} is "Locked":
-                    unlockQuest(player, "frank", "frankBuyLogs")
                     runDialogAndReminder(player, "frank", "frank", "opening", {frankBuyLogs})
                     #execute console command "/givecoin %player% 4"
+                    #unlockQuest(player, "frank", "frankBuyLogs")
 
                 else if {_buyLogs} is "Unlocked":
                     runDialogAndReminder(player, "frank", "frank", "buyLogs", {frankBuyLogs})
@@ -126,7 +132,11 @@ command /npcClick <text> <text = "right">:
                 else if {_buyLogs} is "Completed":
                     set {_bringLogs} to getQuestStatus(player, "frank", "frankBringLogs")
 
-                    if {_bringLogs} is "Unlocked":
+                    if {_bringLogs} is "Locked":
+                        unlockQuest(player, "frank", "frankBringLogs", true)
+                        remindTask(player, {frankBringLogs})
+
+                    else if {_bringLogs} is "Unlocked":
                         set {_item} to 64 oak log
 
                         if checkItemInInventory(player, {_item}) is true:
@@ -142,7 +152,7 @@ command /npcClick <text> <text = "right">:
 
 
 
-        # Dwergen
+        # Dwarves
         ############################################################################
 
 
