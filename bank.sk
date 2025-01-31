@@ -3,6 +3,11 @@ command /atm:
     trigger:
         bankGUI(player)
 
+command /bank:
+    permission: group.user
+    trigger:
+        execute console command "/shopkeeper remote 13 %player%"
+
 command /givecoin <player> [<text = 1>]:
     permission: group.admin
     trigger:
